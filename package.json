@@ -1,0 +1,36 @@
+{
+  "license": "ISC",
+  "name": "razorback",
+  "version": "0.0.0",
+  "author": "Osman Mesut Ozcan",
+  "description": "Extension Framework for NeoVim",
+  "main": "dist/index.js",
+  "bin": "bin/index.js",
+  "keywords": [
+    "neovim"
+  ],
+  "scripts": {
+    "build": "tsc -p .",
+    "postbuild": "pkg . --out-path ./build"
+  },
+  "dependencies": {
+    "log4js": "^4.0.0",
+    "neovim": "^4.2.1",
+    "vscode-languageserver-protocol": "^3.14.1"
+  },
+  "devDependencies": {
+    "@types/msgpack-lite": "^0.1.6",
+    "@types/node": "^10.12.18",
+    "pkg": "^4.3.7",
+    "tslint": "^5.12.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "typescript": "^3.2.4"
+  },
+  "pkg": {
+    "targets": [
+      "node10-linux-x64",
+      "node10-macos-x64",
+      "node10-win-x64"
+    ]
+  }
+}
