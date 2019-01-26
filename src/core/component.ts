@@ -18,7 +18,10 @@ export interface ClassMap {
  */
 export interface IComponent {
   /**
-   * Boot function to initialize setup components.
+   * Boot function for async initializing any required
+   * parts of the component. Called during bind operation
+   * of the component (when `core.component(Component)`).
+   *
    */
   boot?: () => Promise<void>;
 

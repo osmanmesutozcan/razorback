@@ -1,10 +1,10 @@
 import * as path from 'path';
 import { inject, injectable } from 'inversify';
-
 import { createLogger } from '../logger';
-import { ExtensionDatabase } from './database';
-import { ExtensionSandbox } from './sandbox';
+import { ExtensionSandbox } from '../sandbox';
 import { IComponent, CoreBindings, Core } from '../core';
+
+import { ExtensionDatabase } from './database';
 import {
   IExtensionModel,
   IExtension,

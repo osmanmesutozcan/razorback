@@ -50,7 +50,8 @@ export class Core extends Container {
 
   /**
    * Bind a component and register its extensions such as
-   * providers to application context.
+   * providers to application context and call boot function
+   * of component if exist.
    */
   async component(component: Constructor<IComponent>) {
     const binding = getServiceIdentifierAsString(component);
@@ -61,7 +62,7 @@ export class Core extends Container {
   }
 
   /**
-   * Boot all of registered components.
+   * Core boot sequence.
    */
   async boot(): Promise<void> {
     const client = this.get<NeovimClient>(CoreBindings.NEOVIM_CLIENT);
