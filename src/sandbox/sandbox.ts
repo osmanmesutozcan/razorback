@@ -12,6 +12,7 @@ import {
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
+const logger = createLogger('razorback#sandbox');
 
 export class ExtensionSandbox {
   private extension: IExtension;
@@ -20,8 +21,9 @@ export class ExtensionSandbox {
     const sandbox = createSandbox(extension);
     delete Module._cache[require.resolve(extension.main)];
 
-    // Attempt to import extension.
-    this.extension = sandbox.require(extension.main);
+    // Attempt to import default from extension.
+    this.extension = sandbox.require(extension.main).default;
+    logger.debug('extension imported successfully');
   }
 
   /**
@@ -119,8 +121,10 @@ function createSandbox(extension: IExtensionDefinition): ISandbox {
   sandbox.require = function sandboxRequire(p: string): any {
     const { _compile } = Module.prototype;
     Module.prototype._compile = compile(sandbox);
+
     const exports = sandbox.module.require(p);
     Module.prototype._compile = _compile;
+
     return exports;
   };
 

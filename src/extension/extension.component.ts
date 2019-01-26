@@ -50,7 +50,7 @@ export class ExtensionComponent implements IComponent {
   private async loadExtension(extension: IExtensionModel): Promise<void> {
     const database = this.core
       .get<ExtensionDatabase>(ExtensionInternalBindings.DATABASE);
-    const packageJSON = await database!.getPackageJSON(extension);
+    const packageJSON = await database.getPackageJSON(extension);
 
     const id = packageJSON.name;
     const main = path.resolve(

@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "tsc -p .",
+    "build:watch": "tsc -w -p .",
     "package": "pkg . --out-path ./build"
   },
   "dependencies": {
