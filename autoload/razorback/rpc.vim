@@ -1,5 +1,5 @@
 function! razorback#rpc#start_server()
-  let command = [razorback#platform#get_server_binary()]
+  let command = razorback#platform#get_server_command()
 
   let server = {}
   let server.client = razorback#client#create(command)

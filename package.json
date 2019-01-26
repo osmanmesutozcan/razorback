@@ -14,11 +14,16 @@
     "postbuild": "pkg . --out-path ./build"
   },
   "dependencies": {
+    "inversify": "^5.0.1",
+    "inversify-logger-middleware": "^3.1.0",
     "log4js": "^4.0.0",
+    "lowdb": "^1.0.0",
     "neovim": "^4.2.1",
+    "vm2": "^3.6.6",
     "vscode-languageserver-protocol": "^3.14.1"
   },
   "devDependencies": {
+    "@types/lowdb": "^1.0.6",
     "@types/msgpack-lite": "^0.1.6",
     "@types/node": "^10.12.18",
     "pkg": "^4.3.7",
@@ -31,6 +36,7 @@
       "node10-linux-x64",
       "node10-macos-x64",
       "node10-win-x64"
-    ]
+    ],
+    "assets": "node_modules/vm2/lib/**"
   }
 }

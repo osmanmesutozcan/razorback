@@ -14,10 +14,12 @@ function! razorback#platform#get_current_platform()
   return s:LINUX
 endfunction
 
-function! razorback#platform#get_server_binary()
+function! razorback#platform#get_server_command()
   let current_platform = razorback#platform#get_current_platform()
 
   if current_platform ==# s:LINUX
-    return s:root.'/build/razorback-linux'
+    " FIXME: find the problem with build.
+    " return [s:root.'/build/razorback-linux']
+    return [s:root.'/bin/index.js']
   endif
 endfunction

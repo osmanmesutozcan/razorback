@@ -48,7 +48,7 @@ endfunction
 function! s:on_stderr(name, messages)
   if empty(s:client) | return | endif
 
-  let data = filter(copy(a:msgs), '!empty(v:val)')
+  let data = filter(copy(a:messages), '!empty(v:val)')
   if empty(data) | return | endif
 
   call extend(s:client['stderrs'], data)

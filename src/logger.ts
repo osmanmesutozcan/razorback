@@ -5,7 +5,7 @@ import * as log4js from 'log4js';
 
 const MAX_LOG_SIZE = 1024 * 1024;
 const MAX_LOG_BACKUPS = 10;
-const LOG_LEVEL = process.env.NVIM_COC_LOG_LEVEL || 'info';
+const LOG_LEVEL = process.env.RAZORBACK_LOG_LEVEL || 'debug';
 const LOG_FILE_PATH = process.env.RAZORBACK_LOG_FILE || path.join(os.tmpdir(), 'razorback.log');
 
 const IS_ROOT = process.getuid && process.getuid() === 0;
