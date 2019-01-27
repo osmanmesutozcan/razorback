@@ -1,17 +1,16 @@
 import *  as _ from 'lodash';
-import { Position } from 'vscode-languageserver-protocol';
+import { Thenable } from 'razorback';
+import { unmanaged } from 'inversify';
 
 import { createLogger } from '../logger';
-import { Command, Thenable } from '../types';
 import { ICommandHandlerDescription } from '../command/types';
 import { revive } from '../base/marshalling';
 import { Core } from '../core/core';
 
 import * as apiTypes from './types';
-import { ExtHostCommandsShape, ObjectIdentifier } from './protocol';
+import { ExtHostCommandsShape, CoreBindings } from './protocol';
 import { validateConstraint } from '../base/types';
-import { CommandsRegistryComponent } from '../command';
-import { ExtHostHeapService } from './heap';
+import { CoreCommandsComponent } from '../command/component';
 
 interface CommandHandler {
   callback: Function;
@@ -23,28 +22,25 @@ export interface ArgumentProcessor {
   processArgument(arg: any): any;
 }
 
+/**
+ * Implement External host APIs.
+ *
+ * For extension api documantation check `razorback.d.ts.`
+ */
 export class ExtHostCommands implements ExtHostCommandsShape {
-  private readonly _proxy: CommandsRegistryComponent;
+  private readonly _proxy: CoreCommandsComponent;
 
   private readonly _logger = createLogger('razorback#api#command');
 
   private readonly _commands = new Map<string, CommandHandler>();
 
-  private readonly _converter: CommandsConverter;
-
   private readonly _argumentProcessors: ArgumentProcessor[];
 
   constructor(
-    core: Core,
-    heapService: ExtHostHeapService,
+    @unmanaged() core: Core,
   ) {
-    this._proxy = core.getProxy(CommandsRegistryComponent);
-    this._converter = new CommandsConverter(this, heapService);
+    this._proxy = core.getProxy(CoreBindings.CoreCommandsComponent);
     this._argumentProcessors = [{ processArgument(a: any) { return revive(a, 0); } }];
-  }
-
-  get converter(): CommandsConverter {
-    return this._converter;
   }
 
   registerArgumentProcessor(processor: ArgumentProcessor): void {
@@ -70,15 +66,13 @@ export class ExtHostCommands implements ExtHostCommandsShape {
 
     this._commands.set(id, { callback, thisArg, description });
     if (global) {
-      this._proxy
-        .$registerCommand(id);
+      this._proxy.$registerCommand(id);
     }
 
     return new apiTypes.Disposable(() => {
       if (this._commands.delete(id)) {
         if (global) {
-          this._proxy
-            .$unregisterCommand(id);
+          this._proxy.$unregisterCommand(id);
         }
       }
     });
@@ -101,8 +95,7 @@ export class ExtHostCommands implements ExtHostCommandsShape {
       }
     });
 
-    const result = this._proxy
-      .$executeCommand<T>(id, args);
+    const result = this._proxy.$executeCommand<T>(id, args);
 
     return revive(result, 0);
   }
@@ -136,7 +129,7 @@ export class ExtHostCommands implements ExtHostCommandsShape {
     }
   }
 
-  $executeContributedCommand<T>(id: string, ..._args: any[]): Promise<T> {
+  async $executeContributedCommand<T>(id: string, ..._args: any[]): Promise<T> {
     this._logger.trace('ExtHostCommands#$executeContributedCommand', id);
 
     if (!this._commands.has(id)) {
@@ -151,14 +144,12 @@ export class ExtHostCommands implements ExtHostCommandsShape {
 
   async getCommands(filterUnderscoreCommands: boolean = false): Promise<string[]> {
     this._logger.trace('ExtHostCommands#getCommands', filterUnderscoreCommands);
-
-    const commands = this._proxy
-      .$getCommands();
-    return commands.filter((command: string[]) =>
+    const commands = await this._proxy.$getCommands();
+    return commands.filter((command: string) =>
       (filterUnderscoreCommands && command[0] !== '_'));
   }
 
-  $getContributedCommandHandlerDescriptions(
+  async $getContributedCommandHandlerDescriptions(
   ): Promise<{ [id: string]: string | ICommandHandlerDescription }> {
     const result: { [id: string]: string | ICommandHandlerDescription } = Object.create(null);
     this._commands.forEach((command, id) => {
@@ -168,78 +159,5 @@ export class ExtHostCommands implements ExtHostCommandsShape {
       }
     });
     return Promise.resolve(result);
-  }
-}
-
-
-export class CommandsConverter {
-
-  private readonly _delegatingCommandId: string;
-  private _commands: ExtHostCommands;
-  private _heap: ExtHostHeapService;
-
-  // --- conversion between internal and api commands
-  constructor(commands: ExtHostCommands, heap: ExtHostHeapService) {
-    this._delegatingCommandId = `_internal_command_delegation_${Date.now()}`;
-    this._commands = commands;
-    this._heap = heap;
-    this._commands.registerCommand(
-      true,
-      this._delegatingCommandId,
-      this.executeConvertedCommand,
-      this,
-    );
-  }
-
-  toInternal(command: Command): modes.Command {
-
-    if (!command) {
-      return undefined;
-    }
-
-    const result: modes.Command = {
-      id: command.command,
-      title: command.title,
-    };
-
-    if (command.command && _.isEmpty(command.arguments)) {
-      // we have a contributed command with arguments. that
-      // means we don't want to send the arguments around
-
-      const id = this._heap.keep(command);
-      ObjectIdentifier.mixin(result, id);
-
-      result.id = this._delegatingCommandId;
-      result.arguments = [id];
-    }
-
-    if (command.tooltip) {
-      result.tooltip = command.tooltip;
-    }
-
-    return result;
-  }
-
-  fromInternal(command: modes.Command): Command {
-
-    if (!command) {
-      return undefined;
-    }
-
-    const id = ObjectIdentifier.of(command);
-    if (typeof id === 'number') {
-      return this._heap.get<Command>(id);
-    }
-
-    return {
-      command: command.id,
-      title: command.title,
-      arguments: command.arguments,
-    };
-  }
-
-  private executeConvertedCommand<R>(...args: any[]): Promise<R> {
-    const actualCmd = this._heap.get<Command>(args[0]);
-    return this._commands.executeCommand(actualCmd.command, ...actualCmd.arguments);
   }
 }

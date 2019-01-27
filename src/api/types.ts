@@ -1,5 +1,4 @@
 export class Disposable {
-
   static from(...inDisposables: { dispose(): any }[]): Disposable {
     let disposables: ReadonlyArray<{ dispose(): any }> | undefined = inDisposables;
     return new Disposable(() => {

@@ -1,6 +1,12 @@
 import { attach, NeovimClient } from 'neovim';
 import { makeLoggerMiddleware } from 'inversify-logger-middleware';
-import { Container, injectable, getServiceIdentifierAsString, unmanaged } from 'inversify';
+import {
+  Container,
+  injectable,
+  getServiceIdentifierAsString,
+  unmanaged,
+  decorate,
+} from 'inversify';
 
 import { createLogger } from '../logger';
 import { ICoreSequence, CoreSequence } from './sequence';
@@ -53,8 +59,8 @@ export class Core extends Container {
    * providers to application context and call boot function
    * of component if exist.
    */
-  async set(component: Constructor<IComponent>) {
-    const binding = getServiceIdentifierAsString(component);
+  async component(binding: symbol, component: Constructor<IComponent>) {
+    decorate(injectable(), component);
     this.bind<IComponent>(binding)
       .to(component)
       .inSingletonScope();
@@ -64,14 +70,21 @@ export class Core extends Container {
   }
 
   /**
+   * Bind a component and register its extensions such as
+   * providers to application context and call boot function
+   * of component if exist.
+   */
+  set<T>(binding: symbol, value: T): T {
+    this.bind<typeof value>(binding)
+      .toConstantValue(value);
+
+    return value;
+  }
+
+  /**
    * Get a bound value from context.
    */
-  getProxy<T>(component: Constructor<T>): T {
-    const binding = getServiceIdentifierAsString(component);
-    this.bind<IComponent>(binding)
-      .to(component)
-      .inSingletonScope();
-
+  getProxy<T>(binding: symbol): T {
     return this.get<T>(binding);
   }
 

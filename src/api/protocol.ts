@@ -1,16 +1,17 @@
+// tslint:disable:max-line-length
+
 import { ICommandHandlerDescription } from '../command/types';
+import { IDisposable } from '../base/lifecycle';
 
 // -- extension host
 
-export interface ExtHostHeapServiceShape {
-  $onGarbageCollection(ids: number[]): void;
-}
+export const ExtHostBindings = {
+  ExtHostCommands: Symbol.for('razorback.ext.hostcommands'),
+};
 
 export interface ExtHostCommandsShape {
   $executeContributedCommand<T>(id: string, ...args: any[]): Promise<T>;
-
-  $getContributedCommandHandlerDescriptions()
-    : Promise<{ [id: string]: string | ICommandHandlerDescription }>;
+  $getContributedCommandHandlerDescriptions(): Promise<{ [id: string]: string | ICommandHandlerDescription }>;
 }
 
 export interface ObjectIdentifier {
@@ -27,3 +28,18 @@ export namespace ObjectIdentifier {
     return obj[name];
   }
 }
+
+// -- core
+
+export const CoreBindings = {
+  CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
+  CoreCommandsComponent: Symbol.for('razorback.core.commands'),
+};
+
+export interface CoreCommandsShape extends IDisposable {
+  $registerCommand(id: string): void;
+  $unregisterCommand(id: string): void;
+  $executeCommand<T>(id: string, args: any[]): Promise<T>;
+  $getCommands(): Promise<string[]>;
+}
+

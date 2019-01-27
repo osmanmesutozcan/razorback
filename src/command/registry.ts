@@ -58,11 +58,7 @@ export class NullCommandService implements ICommandService {
   }
 }
 
-export class CommandsRegistryComponent implements IComponent, ICommandsRegistry {
-  services = {
-    [ICommandService.toString()]: NullCommandService,
-  };
-
+class CommandsRegistryImpl implements IComponent, ICommandsRegistry {
   private readonly _commands = new Map<string, LinkedList<ICommand>>();
 
   private readonly _onDidRegisterCommand = new Emitter<string>();
@@ -143,3 +139,5 @@ export class CommandsRegistryComponent implements IComponent, ICommandsRegistry 
     return result;
   }
 }
+
+export const CommandsRegistry = new CommandsRegistryImpl();

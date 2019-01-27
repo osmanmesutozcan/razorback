@@ -3,11 +3,18 @@
     "target": "es6",
     "module": "commonjs",
     "lib": ["es2017", "es2018"],
-    "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
+  },
+  "include": [
+    "./src"
+  ],
+  "paths": {
+    "src/*": [
+      "./src/*"
+    ]
   }
 }

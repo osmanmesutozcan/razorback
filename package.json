@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "author": "Osman Mesut Ozcan",
   "description": "Extension Framework for NeoVim",
-  "main": "dist/index.js",
+  "main": "out",
   "bin": "bin/index.js",
+  "typings": "vscode.d.ts",
   "keywords": [
     "neovim"
   ],

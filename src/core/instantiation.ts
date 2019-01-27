@@ -5,16 +5,16 @@ import { inject } from 'inversify';
  */
 export function createDecorator<T>(
   serviceId: string,
-): { (...args: []): void; type: T; toString: () => string } {
+): { (...args: any[]): void; type: T; } {
+
   const id = <any>function (target: Function, key: string, index: number): any {
     if (arguments.length !== 3) {
       throw new Error('@IServiceName-decorator can only be used to decorate a parameter');
     }
 
-    return inject(id)(target, key, index);
+    inject(serviceId)(target, key, index);
   };
 
   id.toString = () => serviceId;
-
   return id;
 }

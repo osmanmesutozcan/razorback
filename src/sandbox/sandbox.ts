@@ -1,26 +1,15 @@
 import * as vm from 'vm';
 import * as _ from 'lodash';
 import * as path from 'path';
+import * as rback from 'razorback';
 import { createLogger } from '../logger';
 
 import { ISandbox, IModule } from './types';
 import { IExtensionDefinition } from '../extension';
+import { Core } from '../core/core';
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
-
-/**
- * Construct require function.
- */
-function makeRequire(this: any): any {
-  const req: any = (p: string) => this.require(p);
-  req.cache = Module._cache;
-  req.main = process.mainModule;
-  req.resolve = (request: string) =>
-    Module._resolveFilename(request, this);
-
-  return req;
-}
 
 /**
  * List of globals to remove from sandbox.
@@ -50,10 +39,32 @@ function removedGlobalStub(name: string): Function {
   };
 }
 
+/**
+ * Construct require function.
+ */
+function makeRequire(this: any, createApi: () => typeof rback): any {
+  const req: any = (p: string) => {
+    if (p === 'razorback') {
+      return createApi();
+    }
+
+    return this.require(p);
+  };
+  req.cache = Module._cache;
+  req.main = process.mainModule;
+  req.resolve = (request: string) =>
+    Module._resolveFilename(request, this);
+
+  return req;
+}
+
 /*
  * Function to replace sandbox require
  */
-export function createSandbox(extension: IExtensionDefinition): ISandbox {
+export function createSandbox(
+  createApi: () => typeof rback,
+  extension: IExtensionDefinition,
+): ISandbox {
   const { main, name } = extension;
   const logger = createLogger(`razorback#sandbox#ext#${name}`);
 
@@ -88,7 +99,7 @@ export function createSandbox(extension: IExtensionDefinition): ISandbox {
 
   sandbox.require = function sandboxRequire(p: string): any {
     const { _compile } = Module.prototype;
-    Module.prototype._compile = compile(sandbox);
+    Module.prototype._compile = compile(sandbox, createApi);
 
     const exports = sandbox.module.require(p);
     Module.prototype._compile = _compile;
@@ -104,9 +115,9 @@ export function createSandbox(extension: IExtensionDefinition): ISandbox {
 /**
  * Compile extension in sandbox.
  */
-function compile(sandbox: ISandbox) {
+function compile(sandbox: ISandbox, createApi: () => typeof rback) {
   return function (this: any, content: string, filename: string): any {
-    const require = makeRequire.call(this);
+    const require = makeRequire.call(this, createApi);
     const dirname = path.dirname(filename);
 
     // remove shebang.

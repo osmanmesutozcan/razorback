@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { inject, injectable } from 'inversify';
+import { inject } from 'inversify';
 import { createLogger } from '../logger';
 import { IComponent, CoreBindings, Core } from '../core';
 
@@ -13,8 +13,7 @@ import {
 
 const logger = createLogger('razorback#extension#component');
 
-@injectable()
-export class ExtensionComponent implements IComponent {
+export class ExtensionsComponent implements IComponent {
   constructor(
     @inject(CoreBindings.CORE_INSTANCE) private core: Core,
   ) { }
@@ -58,10 +57,9 @@ export class ExtensionComponent implements IComponent {
       packageJSON.main || 'index.js',
     );
 
-    this.extensions.set(id, new Extension({
-      ...extension,
-      id,
-      main,
-    }));
+    this.extensions.set(id, new Extension(
+      this.core,
+      { ...extension, id, main },
+    ));
   }
 }
