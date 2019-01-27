@@ -1,11 +1,10 @@
 import *  as _ from 'lodash';
 import { Thenable } from 'razorback';
-import { unmanaged } from 'inversify';
 
 import { createLogger } from '../logger';
 import { ICommandHandlerDescription } from '../command/types';
 import { revive } from '../base/marshalling';
-import { Core } from '../core/core';
+import { CoreContext } from '../core/core';
 
 import * as apiTypes from './types';
 import { ExtHostCommandsShape, CoreBindings } from './protocol';
@@ -24,6 +23,7 @@ export interface ArgumentProcessor {
 
 /**
  * Implement External host APIs.
+ * This is a registery for host only commands (non-global).
  *
  * For extension api documantation check `razorback.d.ts.`
  */
@@ -36,10 +36,8 @@ export class ExtHostCommands implements ExtHostCommandsShape {
 
   private readonly _argumentProcessors: ArgumentProcessor[];
 
-  constructor(
-    @unmanaged() core: Core,
-  ) {
-    this._proxy = core.getProxy(CoreBindings.CoreCommandsComponent);
+  constructor(core: CoreContext) {
+    this._proxy = core.get(CoreBindings.CoreCommandsComponent);
     this._argumentProcessors = [{ processArgument(a: any) { return revive(a, 0); } }];
   }
 

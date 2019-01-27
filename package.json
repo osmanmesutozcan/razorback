@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "author": "Osman Mesut Ozcan",
   "description": "Extension Framework for NeoVim",
-  "main": "out",
   "bin": "bin/index.js",
-  "typings": "vscode.d.ts",
+  "typings": "razorback.d.ts",
   "keywords": [
     "neovim"
   ],
@@ -17,6 +16,7 @@
   },
   "dependencies": {
     "inversify": "^5.0.1",
+    "inversify-inject-decorators": "^3.1.0",
     "inversify-logger-middleware": "^3.1.0",
     "log4js": "^4.0.0",
     "lowdb": "^1.0.0",

@@ -42,12 +42,23 @@ export enum EventMethods {
   INPUT_CHAR = 'InputChar',
   GLOBAL_CHANGE = 'GlobalChange',
   RAZORBACK_AUTOCMD = 'RazorbackAutocmd',
+
+  /**
+   * A user command dispatched from neovim.
+   */
+  RAZORBACK_CMD = 'RazorbackCommand',
 }
 
 /**
  * Client function name mappings
  */
-export namespace RazorbackcommonClientKeys {
+export namespace ClientCommandMappings {
+  export namespace Window {
+    export const MULTILINE_MESSAGE = 'lh#common#echomsg_multilines';
+    export const WARNING_MESSAGE = 'lh#common#warning_msg';
+    export const ERROR_MESSAGE = 'lh#common#error_msg';
+  }
+
   export namespace Extension {
     /**
      * Returns root path for extension directory.

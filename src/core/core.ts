@@ -3,7 +3,6 @@ import { makeLoggerMiddleware } from 'inversify-logger-middleware';
 import {
   Container,
   injectable,
-  getServiceIdentifierAsString,
   unmanaged,
   decorate,
 } from 'inversify';
@@ -11,7 +10,7 @@ import {
 import { createLogger } from '../logger';
 import { ICoreSequence, CoreSequence } from './sequence';
 import { IComponent, Constructor, mountComponent } from './component';
-import { ICoreOptions, CoreBindings, RazorbackcommonClientKeys } from './types';
+import { ICoreOptions, CoreBindings, ClientCommandMappings } from './types';
 
 const logger = createLogger('razorback#core');
 
@@ -19,7 +18,7 @@ const logger = createLogger('razorback#core');
  * Core is a container for razorback artifacts.
  */
 @injectable()
-export class Core extends Container {
+export class CoreContext extends Container {
   constructor(
     @unmanaged() coreOptions: ICoreOptions,
   ) {
@@ -35,8 +34,6 @@ export class Core extends Container {
 
     this.bind(CoreBindings.CORE_INSTANCE)
       .toConstantValue(this);
-
-    this.sequence(CoreSequence);
   }
 
   private async onNotification(method: string, args: any): Promise<void> {
@@ -49,7 +46,7 @@ export class Core extends Container {
     return await sequence.onRequest(method, args, response);
   }
 
-  private sequence(sequence: Constructor<ICoreSequence>) {
+  sequence(sequence: Constructor<ICoreSequence>) {
     this.bind(CoreBindings.SEQUENCE)
       .to(sequence);
   }
@@ -95,7 +92,7 @@ export class Core extends Container {
     const client = this.get<NeovimClient>(CoreBindings.NEOVIM_CLIENT);
 
     const root = await client.call(
-      RazorbackcommonClientKeys.Extension.ROOT_DIRECTORY,
+      ClientCommandMappings.Extension.ROOT_DIRECTORY,
     );
     this.bind(CoreBindings.EXTENSION_DIRECTORY)
       .toConstantValue(root);

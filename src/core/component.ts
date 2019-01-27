@@ -1,4 +1,4 @@
-import { Core } from './core';
+import { CoreContext } from './core';
 
 export type BoundValue = any;
 
@@ -49,7 +49,7 @@ export interface IComponent {
 /**
  * Mount a component to core context.
  */
-export async function mountComponent(core: Core, component: IComponent): Promise<void> {
+export async function mountComponent(core: CoreContext, component: IComponent): Promise<void> {
   if (component.classes) {
     for (const classKey in component.classes) {
       core.bind(classKey)

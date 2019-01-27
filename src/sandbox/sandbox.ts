@@ -5,8 +5,8 @@ import * as rback from 'razorback';
 import { createLogger } from '../logger';
 
 import { ISandbox, IModule } from './types';
-import { IExtensionDefinition } from '../extension';
-import { Core } from '../core/core';
+import { IExtensionDescription } from '../extension/types';
+import { ICreateApi } from '../api';
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
@@ -42,10 +42,14 @@ function removedGlobalStub(name: string): Function {
 /**
  * Construct require function.
  */
-function makeRequire(this: any, createApi: () => typeof rback): any {
+function makeRequire(
+  this: any,
+  createApi: ICreateApi,
+  extension: IExtensionDescription,
+): any {
   const req: any = (p: string) => {
     if (p === 'razorback') {
-      return createApi();
+      return createApi(extension);
     }
 
     return this.require(p);
@@ -62,14 +66,14 @@ function makeRequire(this: any, createApi: () => typeof rback): any {
  * Function to replace sandbox require
  */
 export function createSandbox(
-  createApi: () => typeof rback,
-  extension: IExtensionDefinition,
+  createApi: ICreateApi,
+  extension: IExtensionDescription,
 ): ISandbox {
-  const { main, name } = extension;
+  const { extensionLocation, name } = extension;
   const logger = createLogger(`razorback#sandbox#ext#${name}`);
 
-  const module = new Module(main);
-  module.paths = Module._nodeModulePaths(main);
+  const module = new Module(extensionLocation.path);
+  module.paths = Module._nodeModulePaths(extensionLocation.path);
 
   const sandbox = vm.createContext({
     module,
@@ -99,12 +103,12 @@ export function createSandbox(
 
   sandbox.require = function sandboxRequire(p: string): any {
     const { _compile } = Module.prototype;
-    Module.prototype._compile = compile(sandbox, createApi);
+    Module.prototype._compile = compile(sandbox, createApi, extension);
 
     const exports = sandbox.module.require(p);
     Module.prototype._compile = _compile;
 
-    delete Module._cache[require.resolve(extension.main)];
+    delete Module._cache[require.resolve(extensionLocation.path)];
 
     return exports;
   };
@@ -115,9 +119,9 @@ export function createSandbox(
 /**
  * Compile extension in sandbox.
  */
-function compile(sandbox: ISandbox, createApi: () => typeof rback) {
+function compile(sandbox: ISandbox, createApi: ICreateApi, extension: IExtensionDescription) {
   return function (this: any, content: string, filename: string): any {
-    const require = makeRequire.call(this, createApi);
+    const require = makeRequire.call(this, createApi, extension);
     const dirname = path.dirname(filename);
 
     // remove shebang.

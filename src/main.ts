@@ -8,21 +8,25 @@ import 'reflect-metadata';
 
 import { CoreBindings } from './api/protocol';
 import { createLogger } from './logger';
-import { Core, ICoreOptions } from './core';
+import { CoreContext, ICoreOptions } from './core';
 import { ExtensionsComponent } from './extension/component';
 import { CoreCommandsComponent } from './command/component';
+import { CoreSequence } from './core/sequence';
 
 const logger = createLogger('razorback#main');
 
 export async function main(options: ICoreOptions) {
-  const core = new Core(options);
-  await core.boot();
+  const coreContext = new CoreContext(options);
+  await coreContext.boot();
 
-  await core.component(CoreBindings.CoreExtensionsComponent, ExtensionsComponent);
-
-  await core.bind(CoreBindings.CoreCommandsComponent)
+  // - service like
+  await coreContext.bind(CoreBindings.CoreCommandsComponent)
     .to(CoreCommandsComponent);
 
-  await core.start();
+  // - singletons
+  await coreContext.component(CoreBindings.CoreExtensionsComponent, ExtensionsComponent);
+
+  coreContext.sequence(CoreSequence);
+  await coreContext.start();
   logger.info('core started');
 }

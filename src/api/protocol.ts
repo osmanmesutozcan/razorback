@@ -7,6 +7,7 @@ import { IDisposable } from '../base/lifecycle';
 
 export const ExtHostBindings = {
   ExtHostCommands: Symbol.for('razorback.ext.hostcommands'),
+  ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
 };
 
 export interface ExtHostCommandsShape {

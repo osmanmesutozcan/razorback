@@ -1,3 +1,3 @@
-export { Core } from './core';
+export { CoreContext } from './core';
 export { IComponent, ClassMap } from './component';
-export { ICoreOptions, CoreBindings, RazorbackcommonClientKeys } from './types';
+export { ICoreOptions, CoreBindings, ClientCommandMappings } from './types';
