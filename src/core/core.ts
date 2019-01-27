@@ -53,12 +53,26 @@ export class Core extends Container {
    * providers to application context and call boot function
    * of component if exist.
    */
-  async component(component: Constructor<IComponent>) {
+  async set(component: Constructor<IComponent>) {
     const binding = getServiceIdentifierAsString(component);
-    this.bind<IComponent>(binding).to(component);
+    this.bind<IComponent>(binding)
+      .to(component)
+      .inSingletonScope();
 
     const instance = this.get<IComponent>(binding);
     await mountComponent(this, instance);
+  }
+
+  /**
+   * Get a bound value from context.
+   */
+  getProxy<T>(component: Constructor<T>): T {
+    const binding = getServiceIdentifierAsString(component);
+    this.bind<IComponent>(binding)
+      .to(component)
+      .inSingletonScope();
+
+    return this.get<T>(binding);
   }
 
   /**

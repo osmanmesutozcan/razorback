@@ -23,10 +23,6 @@ export interface IExtensionDefinition extends IExtensionModel {
    * Extension entrypoint.
    */
   main: string;
-  /**
-   * Is extension currently active.
-   */
-  isActivated: boolean;
 }
 
 export interface IExtensionContext {

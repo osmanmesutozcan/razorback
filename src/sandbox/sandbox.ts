@@ -4,42 +4,10 @@ import * as path from 'path';
 import { createLogger } from '../logger';
 
 import { ISandbox, IModule } from './types';
-import {
-  IExtension,
-  IExtensionContext,
-  IExtensionDefinition,
-} from '../extension';
+import { IExtensionDefinition } from '../extension';
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
-const logger = createLogger('razorback#sandbox');
-
-export class ExtensionSandbox {
-  private extension: IExtension;
-
-  constructor(extension: IExtensionDefinition) {
-    const sandbox = createSandbox(extension);
-    delete Module._cache[require.resolve(extension.main)];
-
-    // Attempt to import default from extension.
-    this.extension = sandbox.require(extension.main).default;
-    logger.debug('extension imported successfully');
-  }
-
-  /**
-   * Activate extension in sandbox context.
-   */
-  async activate(context: IExtensionContext): Promise<boolean> {
-    return this.extension.activate(context);
-  }
-
-  /**
-   * Deactivate extension in sandbox context.
-   */
-  async deactivate(): Promise<boolean> {
-    return this.extension.deactivate();
-  }
-}
 
 /**
  * Construct require function.
@@ -85,7 +53,7 @@ function removedGlobalStub(name: string): Function {
 /*
  * Function to replace sandbox require
  */
-function createSandbox(extension: IExtensionDefinition): ISandbox {
+export function createSandbox(extension: IExtensionDefinition): ISandbox {
   const { main, name } = extension;
   const logger = createLogger(`razorback#sandbox#ext#${name}`);
 
@@ -124,6 +92,8 @@ function createSandbox(extension: IExtensionDefinition): ISandbox {
 
     const exports = sandbox.module.require(p);
     Module.prototype._compile = _compile;
+
+    delete Module._cache[require.resolve(extension.main)];
 
     return exports;
   };

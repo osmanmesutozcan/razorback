@@ -1,9 +1,9 @@
 import * as path from 'path';
 import { inject, injectable } from 'inversify';
 import { createLogger } from '../logger';
-import { ExtensionSandbox } from '../sandbox';
 import { IComponent, CoreBindings, Core } from '../core';
 
+import { Extension } from './extension';
 import { ExtensionDatabase } from './database';
 import {
   IExtensionModel,
@@ -26,7 +26,7 @@ export class ExtensionComponent implements IComponent {
   /**
    * List of loaded extensions.
    */
-  private extensionsList: {[id: string]: IExtension} = {};
+  private extensions = new Map<string, IExtension>();
 
   /**
    * Init sequence of extensions.
@@ -58,11 +58,10 @@ export class ExtensionComponent implements IComponent {
       packageJSON.main || 'index.js',
     );
 
-    this.extensionsList[id] = new ExtensionSandbox({
+    this.extensions.set(id, new Extension({
       ...extension,
       id,
       main,
-      isActivated: false,
-    });
+    }));
   }
 }

@@ -1,5 +1,4 @@
 import { Core } from './core';
-import { createLogger } from '../logger';
 
 export type BoundValue = any;
 
@@ -11,6 +10,10 @@ export type Constructor<T> =
 
 export interface ClassMap {
   [binding: string]: Constructor<BoundValue>;
+}
+
+export interface ServiceMap {
+  [binding: string]: BoundValue;
 }
 
 /**
@@ -27,8 +30,20 @@ export interface IComponent {
 
   /**
    * A map of classes to be bound to core context.
+   * Classes are bound in Transient scope.
    */
   classes?: ClassMap;
+
+  /*
+   * A map of service to be bound to core context.
+   * Services are bound in Singleton scope.
+   */
+  services?: ServiceMap;
+
+  /**
+   * Other properties
+   */
+  [prop: string]: any;
 }
 
 /**

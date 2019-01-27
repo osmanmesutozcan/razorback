@@ -1,1 +1,1 @@
-export { ExtensionSandbox } from './sandbox';
+export { createSandbox } from './sandbox';
