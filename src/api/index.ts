@@ -1,15 +1,24 @@
 // tslint:disable:max-line-length
 
 import * as rback from 'razorback';
-import * as apiTypes from '../api/types';
+import Severity from '../base/severity';
 import { CoreContext } from '../core/core';
+import { URI } from '../base/uri';
+
+import * as apiTypes from './types';
 import { ExtHostBindings } from './protocol';
 import { ExtHostCommands } from './command';
-import Severity from '../base/severity';
-import { ExtHostMessageService } from '../message/service';
+import { ExtHostMessageService } from './message';
+import { ExtHostWorkspace } from './workspace';
 import { IExtensionDescription } from '../extension/types';
 
 export function createApiFactory(coreContext: CoreContext) {
+  // Register extention host classes to core.
+  // So it they will be available to main thread.
+  // Now we can inject there classes to Services.
+  const extHostCommands = coreContext.set(ExtHostBindings.ExtHostCommands, new ExtHostCommands(coreContext));
+  const extHostMessageService = coreContext.set(ExtHostBindings.ExtHostMessageService, new ExtHostMessageService(coreContext));
+  const extHostWorkspace = coreContext.set(ExtHostBindings.ExtHostWorkspace, new ExtHostWorkspace(coreContext));
 
   return function createApi(
     extension: IExtensionDescription,
@@ -17,11 +26,6 @@ export function createApiFactory(coreContext: CoreContext) {
     // extensionRegistry: ExtensionDescriptionRegistry,
     // configProvider: ExtHostConfigProvider
   ): typeof rback {
-    // Register extention host classes to core.
-    // So it they will be available to main thread.
-    // Now we can inject there classes to Services.
-    const extHostCommands = coreContext.set(ExtHostBindings.ExtHostCommands, new ExtHostCommands(coreContext));
-    const extHostMessageService = coreContext.set(ExtHostBindings.ExtHostMessageService, new ExtHostMessageService(coreContext));
 
     // commands namespace;
     const commands: typeof rback.commands = {
@@ -33,6 +37,18 @@ export function createApiFactory(coreContext: CoreContext) {
       },
       getCommands(filterInternal = false) {
         return extHostCommands.getCommands(filterInternal);
+      },
+    };
+
+    const workspace: typeof rback.workspace = {
+      get rootPath() {
+        return extHostWorkspace.rootPath;
+      },
+      get workspaceFolders() {
+        return extHostWorkspace.workspaceFolders;
+      },
+      get name() {
+        return extHostWorkspace.name;
       },
     };
 
@@ -51,7 +67,10 @@ export function createApiFactory(coreContext: CoreContext) {
     return {
       window,
       commands,
+      workspace,
       Disposable: apiTypes.Disposable,
+
+      Uri: URI,
     };
   };
 }

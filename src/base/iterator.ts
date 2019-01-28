@@ -187,7 +187,7 @@ export interface INavigator<T> extends INextIterator<T> {
 export class MappedNavigator<T, R> extends MappedIterator<T, R> implements INavigator<R> {
 
   constructor(protected navigator: INavigator<T>, fn: (item: T) => R) {
-    super(navigator, <(item: T|null) => R>fn);
+    super(navigator, <(item: T | null) => R>fn);
   }
 
   current() { return this.fn(this.navigator.current()); }

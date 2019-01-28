@@ -9,7 +9,6 @@ import { revive } from '../base/marshalling';
 
 @injectable()
 export class CoreCommandsComponent implements CoreCommandsShape, IComponent, IDisposable {
-  // private readonly _proxy: ExtHostCommands; // FIXME
 
   private readonly _disposables = new Map<string, IDisposable>();
 
@@ -19,9 +18,7 @@ export class CoreCommandsComponent implements CoreCommandsShape, IComponent, IDi
 
   constructor(
     @inject(CoreBindings.CORE_INSTANCE) private readonly core: CoreContext,
-    // @ICommandService private readonly _commandService: ICommandService,
   ) {
-    // this._proxy = core.getProxy(ExtHostBindings.ExtHostCommands); //FIXME
 
     this._generateCommandsDocumentationRegistration = CommandsRegistry
       .registerCommand(
@@ -31,7 +28,8 @@ export class CoreCommandsComponent implements CoreCommandsShape, IComponent, IDi
   }
 
   $registerCommand(id: string): void {
-    const proxy = this.core.getProxy<ExtHostCommands>(ExtHostBindings.ExtHostCommands);
+    const proxy = this.core.get<ExtHostCommands>(ExtHostBindings.ExtHostCommands);
+
     this._disposables.set(
       id,
       CommandsRegistry.registerCommand(id, async (_accessor, ...args) => {

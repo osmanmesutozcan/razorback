@@ -1,7 +1,6 @@
 import * as vm from 'vm';
 import * as _ from 'lodash';
 import * as path from 'path';
-import * as rback from 'razorback';
 import { createLogger } from '../logger';
 
 import { ISandbox, IModule } from './types';
@@ -48,7 +47,7 @@ function makeRequire(
   extension: IExtensionDescription,
 ): any {
   const req: any = (p: string) => {
-    if (p === 'razorback') {
+    if (p === 'razorback' || p === 'vscode') {
       return createApi(extension);
     }
 

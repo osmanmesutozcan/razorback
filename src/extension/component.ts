@@ -12,6 +12,7 @@ import {
   IExtensionDescription,
 } from './types';
 import { URI } from '../base/uri';
+import { ICreateApi, createApiFactory } from '../api';
 
 const logger = createLogger('razorback#extension#component');
 
@@ -28,6 +29,11 @@ export class ExtensionsComponent implements IComponent {
    * List of loaded extensions.
    */
   private extensions = new Map<string, IExtension>();
+
+  /*
+   * Create api function that returns api surface.
+   */
+  private readonly createApi: ICreateApi = createApiFactory(this.core);
 
   /**
    * Init sequence of extensions.
@@ -56,7 +62,7 @@ export class ExtensionsComponent implements IComponent {
     const id = packageJSON.name;
 
     this.extensions.set(id, new Extension(
-      this.core,
+      this.createApi,
       await this._loadExtensionDescription(extension, packageJSON),
     ));
   }

@@ -8,7 +8,7 @@ import {
 } from 'inversify';
 
 import { createLogger } from '../logger';
-import { ICoreSequence, CoreSequence } from './sequence';
+import { ICoreSequence } from './sequence';
 import { IComponent, Constructor, mountComponent } from './component';
 import { ICoreOptions, CoreBindings, ClientCommandMappings } from './types';
 

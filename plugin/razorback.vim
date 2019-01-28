@@ -11,6 +11,11 @@ function! s:Notify(method, arguments)
   call s:server.notify(a:method, a:arguments)
 endfunction
 
+" Make a request to server and get result
+function! s:Request(method, arguments)
+  return call s:server.request(a:method, a:arguments)
+endfunction
+
 " Register autocmds to notify server on certain events.
 function! s:Hook()
   augroup razorback

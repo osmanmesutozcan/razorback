@@ -8,6 +8,7 @@ import { IDisposable } from '../base/lifecycle';
 export const ExtHostBindings = {
   ExtHostCommands: Symbol.for('razorback.ext.hostcommands'),
   ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
+  ExtHostWorkspace: Symbol.for('razorback.ext.workspace'),
 };
 
 export interface ExtHostCommandsShape {
@@ -35,6 +36,8 @@ export namespace ObjectIdentifier {
 export const CoreBindings = {
   CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
   CoreCommandsComponent: Symbol.for('razorback.core.commands'),
+  CoreMessageComponent: Symbol.for('razorback.core.message'),
+  CoreWorkspaceComponent: Symbol.for('razorback.core.workspace'),
 };
 
 export interface CoreCommandsShape extends IDisposable {

@@ -18,6 +18,8 @@ export interface ServiceMap {
 
 /**
  * Component definition.
+ *
+ * TODO: We need to remove this bullshit.
  */
 export interface IComponent {
   /**

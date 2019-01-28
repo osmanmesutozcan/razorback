@@ -1,21 +1,16 @@
-import * as rback from 'razorback';
 import { createLogger } from '../logger';
 import { createSandbox } from '../sandbox';
 
 import {
   IExtension,
-  IExtensionDefinition,
   IExtensionDescription,
 } from './types';
-import { CoreContext } from '../core/core';
-import { createApiFactory } from '../api';
+import { ICreateApi } from '../api';
 
 const logger = createLogger('razorback#extension#extension');
 
 export class Extension {
   private extension: IExtension;
-
-  private createApi: (extension: IExtensionDescription) => typeof rback;
 
   /*
    * Is extension active.
@@ -37,14 +32,16 @@ export class Extension {
   }
 
   constructor(
-    core: CoreContext,
+    createApi: ICreateApi,
     extension: IExtensionDescription,
   ) {
-    this.createApi = createApiFactory(core);
-    const sandbox = createSandbox(this.createApi, extension);
+    const sandbox = createSandbox(createApi, extension);
 
     // Attempt to import default from extension.
-    this.extension = sandbox.require(extension.extensionLocation.path).default;
+    // FIXME: Check if default fallback to non-default!
+    this.extension =
+      sandbox.require(extension.extensionLocation.path);
+      // || sandbox.require(extension.extensionLocation.path);
     logger.debug('extension imported successfully');
 
     // TODO: Generate context.
