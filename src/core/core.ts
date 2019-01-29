@@ -1,4 +1,4 @@
-import { attach, NeovimClient } from 'neovim';
+import { attach, NeovimClient, Buffer as NeovimBuffer } from 'neovim';
 import { makeLoggerMiddleware } from 'inversify-logger-middleware';
 import {
   Container,
@@ -24,37 +24,54 @@ export class CoreContext extends Container {
   ) {
     super();
 
+    const nvim = attach(coreOptions);
+
     this.applyMiddleware(
       makeLoggerMiddleware(undefined, out => logger.trace(out)),
     );
 
     this
       .bind<NeovimClient>(CoreBindings.NEOVIM_CLIENT)
-      .toConstantValue(attach(coreOptions));
+      .toConstantValue(nvim);
 
     this.bind(CoreBindings.CORE_INSTANCE)
       .toConstantValue(this);
   }
 
-  private async onNotification(method: string, args: any): Promise<void> {
+  private async _onNotification(method: string, args: any): Promise<void> {
     const sequence = this.get<ICoreSequence>(CoreBindings.SEQUENCE);
     return await sequence.onNotification(method, args);
   }
 
-  private async onRequest(method: string, args: any, response: any): Promise<void> {
+  private async _onRequest(method: string, args: any, response: any): Promise<void> {
     const sequence = this.get<ICoreSequence>(CoreBindings.SEQUENCE);
     return await sequence.onRequest(method, args, response);
   }
 
   sequence(sequence: Constructor<ICoreSequence>) {
     this.bind(CoreBindings.SEQUENCE)
-      .to(sequence);
+      .to(sequence)
+      .inSingletonScope();
+  }
+
+  /**
+   * Bind a service like component to core context.
+   *
+   * Services are bound in transient scope. They will
+   * re-initialize every time requested from the core
+   * context.
+   */
+  service<T>(binding: symbol, service: Constructor<T>) {
+    this.bind(binding).to(service);
   }
 
   /**
    * Bind a component and register its extensions such as
    * providers to application context and call boot function
    * of component if exist.
+   *
+   * Components are bound in singleton scope by default.
+   * Which means they will be shared across application.
    */
   async component(binding: symbol, component: Constructor<IComponent>) {
     decorate(injectable(), component);
@@ -67,11 +84,11 @@ export class CoreContext extends Container {
   }
 
   /**
-   * Bind a component and register its extensions such as
-   * providers to application context and call boot function
-   * of component if exist.
+   * Bind a constant value to coreContext.
+   * Constant values can be initialized
+   * classes as well.
    */
-  set<T>(binding: symbol, value: T): T {
+  constant<T>(binding: symbol, value: T): T {
     this.bind<typeof value>(binding)
       .toConstantValue(value);
 
@@ -103,8 +120,8 @@ export class CoreContext extends Container {
    */
   async start(): Promise<void> {
     const client = this.get<NeovimClient>(CoreBindings.NEOVIM_CLIENT);
-    client.on('notification', this.onNotification.bind(this));
-    client.on('request', this.onRequest.bind(this));
+    client.on('notification', this._onNotification.bind(this));
+    client.on('request', this._onRequest.bind(this));
   }
 
   /**

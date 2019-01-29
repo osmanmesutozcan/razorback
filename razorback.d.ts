@@ -141,6 +141,50 @@ declare module 'razorback' {
   }
 
   /**
+   * Represents an end of line character sequence in a [document](#TextDocument).
+   */
+  export enum EndOfLine {
+    /**
+     * The line feed `\n` character.
+     */
+    LF = 1,
+    /**
+     * The carriage return line feed `\r\n` sequence.
+     */
+    CRLF = 2
+  }
+
+  /**
+   * An event emitter can be used to create and manage an [event](#Event) for others
+   * to subscribe to. One emitter always owns one event.
+   *
+   * Use this class if you want to provide event from within your extension, for instance
+   * inside a [TextDocumentContentProvider](#TextDocumentContentProvider) or when providing
+   * API to other extensions.
+   */
+  export class EventEmitter<T> {
+
+    /**
+     * The event listeners can subscribe to.
+     */
+    // FIXME this is an incomtable with vscode types.
+    event: Event<T | undefined>;
+
+    /**
+     * Notify all subscribers of the [event](#EventEmitter.event). Failure
+     * of one or more listener will not fail this function call.
+     *
+     * @param data The event object.
+     */
+    fire(data?: T): void;
+
+    /**
+     * Dispose this object and free resources.
+     */
+    dispose(): void;
+  }
+
+  /**
    * Represents a typed event.
    *
    * A function that represents an event to which you subscribe by calling it with
@@ -204,6 +248,431 @@ declare module 'razorback' {
   //    */
   //   dispose(): void;
   // }
+
+  /**
+   * A range represents an ordered pair of two positions.
+   * It is guaranteed that [start](#Range.start).isBeforeOrEqual([end](#Range.end))
+   *
+   * Range objects are __immutable__. Use the [with](#Range.with),
+   * [intersection](#Range.intersection), or [union](#Range.union) methods
+   * to derive new ranges from an existing range.
+   */
+  export class Range {
+
+    /**
+     * The start position. It is before or equal to [end](#Range.end).
+     */
+    readonly start: Position;
+
+    /**
+     * The end position. It is after or equal to [start](#Range.start).
+     */
+    readonly end: Position;
+
+    /**
+     * Create a new range from two positions. If `start` is not
+     * before or equal to `end`, the values will be swapped.
+     *
+     * @param start A position.
+     * @param end A position.
+     */
+    constructor(start: Position, end: Position);
+
+    /**
+     * Create a new range from number coordinates. It is a shorter equivalent of
+     * using `new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter))`
+     *
+     * @param startLine A zero-based line value.
+     * @param startCharacter A zero-based character value.
+     * @param endLine A zero-based line value.
+     * @param endCharacter A zero-based character value.
+     */
+    constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
+
+    /**
+     * `true` if `start` and `end` are equal.
+     */
+    isEmpty: boolean;
+
+    /**
+     * `true` if `start.line` and `end.line` are equal.
+     */
+    isSingleLine: boolean;
+
+    /**
+     * Check if a position or a range is contained in this range.
+     *
+     * @param positionOrRange A position or a range.
+     * @return `true` if the position or range is inside or equal
+     * to this range.
+     */
+    contains(positionOrRange: Position | Range): boolean;
+
+    /**
+     * Check if `other` equals this range.
+     *
+     * @param other A range.
+     * @return `true` when start and end are [equal](#Position.isEqual) to
+     * start and end of this range.
+     */
+    isEqual(other: Range): boolean;
+
+    /**
+     * Intersect `range` with this range and returns a new range or `undefined`
+     * if the ranges have no overlap.
+     *
+     * @param range A range.
+     * @return A range of the greater start and smaller end positions. Will
+     * return undefined when there is no overlap.
+     */
+    intersection(range: Range): Range | undefined;
+
+    /**
+     * Compute the union of `other` with this range.
+     *
+     * @param other A range.
+     * @return A range of smaller start position and the greater end position.
+     */
+    union(other: Range): Range;
+
+    /**
+     * Derived a new range from this range.
+     *
+     * @param start A position that should be used as start. The default value is the [current start](#Range.start).
+     * @param end A position that should be used as end. The default value is the [current end](#Range.end).
+     * @return A range derived from this range with the given start and end position.
+     * If start and end are not different `this` range will be returned.
+     */
+    with(start?: Position, end?: Position): Range;
+
+    /**
+     * Derived a new range from this range.
+     *
+     * @param change An object that describes a change to this range.
+     * @return A range that reflects the given change. Will return `this` range if the change
+     * is not changing anything.
+     */
+    with(change: { start?: Position, end?: Position }): Range;
+  }
+
+  /**
+   * Represents a line of text, such as a line of source code.
+   *
+   * TextLine objects are __immutable__. When a [document](#TextDocument) changes,
+   * previously retrieved lines will not represent the latest state.
+   */
+  export interface TextLine {
+
+    /**
+     * The zero-based line number.
+     */
+    readonly lineNumber: number;
+
+    /**
+     * The text of this line without the line separator characters.
+     */
+    readonly text: string;
+
+    /**
+     * The range this line covers without the line separator characters.
+     */
+    readonly range: Range;
+
+    /**
+     * The range this line covers with the line separator characters.
+     */
+    readonly rangeIncludingLineBreak: Range;
+
+    /**
+     * The offset of the first character which is not a whitespace character as defined
+     * by `/\s/`. **Note** that if a line is all whitespaces the length of the line is returned.
+     */
+    readonly firstNonWhitespaceCharacterIndex: number;
+
+    /**
+     * Whether this line is whitespace only, shorthand
+     * for [TextLine.firstNonWhitespaceCharacterIndex](#TextLine.firstNonWhitespaceCharacterIndex) === [TextLine.text.length](#TextLine.text).
+     */
+    readonly isEmptyOrWhitespace: boolean;
+  }
+
+  /**
+   * Represents a text document, such as a source file. Text documents have
+   * [lines](#TextLine) and knowledge about an underlying resource like a file.
+   */
+  export interface TextDocument {
+
+    /**
+     * The associated uri for this document.
+     *
+     * *Note* that most documents use the `file`-scheme, which means they are files on disk. However, **not** all documents are
+     * saved on disk and therefore the `scheme` must be checked before trying to access the underlying file or siblings on disk.
+     *
+     * @see [FileSystemProvider](#FileSystemProvider)
+     * @see [TextDocumentContentProvider](#TextDocumentContentProvider)
+     */
+    readonly uri: Uri;
+
+    /**
+     * The file system path of the associated resource. Shorthand
+     * notation for [TextDocument.uri.fsPath](#TextDocument.uri). Independent of the uri scheme.
+     */
+    readonly fileName: string;
+
+    /**
+     * Is this document representing an untitled file which has never been saved yet. *Note* that
+     * this does not mean the document will be saved to disk, use [`uri.scheme`](#Uri.scheme)
+     * to figure out where a document will be [saved](#FileSystemProvider), e.g. `file`, `ftp` etc.
+     */
+    readonly isUntitled: boolean;
+
+    /**
+     * The identifier of the language associated with this document.
+     */
+    readonly languageId: string;
+
+    /**
+     * The version number of this document (it will strictly increase after each
+     * change, including undo/redo).
+     */
+    readonly version: number;
+
+    /**
+     * `true` if there are unpersisted changes.
+     */
+    readonly isDirty: boolean;
+
+    /**
+     * `true` if the document have been closed. A closed document isn't synchronized anymore
+     * and won't be re-used when the same resource is opened again.
+     */
+    readonly isClosed: boolean;
+
+    /**
+     * Save the underlying file.
+     *
+     * @return A promise that will resolve to true when the file
+     * has been saved. If the file was not dirty or the save failed,
+     * will return false.
+     */
+    save(): Thenable<boolean>;
+
+    /**
+     * The [end of line](#EndOfLine) sequence that is predominately
+     * used in this document.
+     */
+    readonly eol: EndOfLine;
+
+    /**
+     * The number of lines in this document.
+     */
+    readonly lineCount: number;
+
+    /**
+     * Returns a text line denoted by the line number. Note
+     * that the returned object is *not* live and changes to the
+     * document are not reflected.
+     *
+     * @param line A line number in [0, lineCount).
+     * @return A [line](#TextLine).
+     */
+    lineAt(line: number): TextLine;
+
+    /**
+     * Returns a text line denoted by the position. Note
+     * that the returned object is *not* live and changes to the
+     * document are not reflected.
+     *
+     * The position will be [adjusted](#TextDocument.validatePosition).
+     *
+     * @see [TextDocument.lineAt](#TextDocument.lineAt)
+     * @param position A position.
+     * @return A [line](#TextLine).
+     */
+    lineAt(position: Position): TextLine;
+
+    /**
+     * Converts the position to a zero-based offset.
+     *
+     * The position will be [adjusted](#TextDocument.validatePosition).
+     *
+     * @param position A position.
+     * @return A valid zero-based offset.
+     */
+    offsetAt(position: Position): number;
+
+    /**
+     * Converts a zero-based offset to a position.
+     *
+     * @param offset A zero-based offset.
+     * @return A valid [position](#Position).
+     */
+    positionAt(offset: number): Position;
+
+    /**
+     * Get the text of this document. A substring can be retrieved by providing
+     * a range. The range will be [adjusted](#TextDocument.validateRange).
+     *
+     * @param range Include only the text included by the range.
+     * @return The text inside the provided range or the entire text.
+     */
+    getText(range?: Range): string;
+
+    /**
+     * Get a word-range at the given position. By default words are defined by
+     * common separators, like space, -, _, etc. In addition, per language custom
+     * [word definitions](#LanguageConfiguration.wordPattern) can be defined. It
+     * is also possible to provide a custom regular expression.
+     *
+     * * *Note 1:* A custom regular expression must not match the empty string and
+     * if it does, it will be ignored.
+     * * *Note 2:* A custom regular expression will fail to match multiline strings
+     * and in the name of speed regular expressions should not match words with
+     * spaces. Use [`TextLine.text`](#TextLine.text) for more complex, non-wordy, scenarios.
+     *
+     * The position will be [adjusted](#TextDocument.validatePosition).
+     *
+     * @param position A position.
+     * @param regex Optional regular expression that describes what a word is.
+     * @return A range spanning a word, or `undefined`.
+     */
+    getWordRangeAtPosition(position: Position, regex?: RegExp): Range | undefined;
+
+    /**
+     * Ensure a range is completely contained in this document.
+     *
+     * @param range A range.
+     * @return The given range or a new, adjusted range.
+     */
+    validateRange(range: Range): Range;
+
+    /**
+     * Ensure a position is contained in the range of this document.
+     *
+     * @param position A position.
+     * @return The given position or a new, adjusted position.
+     */
+    validatePosition(position: Position): Position;
+  }
+
+  /**
+   * Represents a line and character position, such as
+   * the position of the cursor.
+   *
+   * Position objects are __immutable__. Use the [with](#Position.with) or
+   * [translate](#Position.translate) methods to derive new positions
+   * from an existing position.
+   */
+  export class Position {
+
+    /**
+     * The zero-based line value.
+     */
+    readonly line: number;
+
+    /**
+     * The zero-based character value.
+     */
+    readonly character: number;
+
+    /**
+     * @param line A zero-based line value.
+     * @param character A zero-based character value.
+     */
+    constructor(line: number, character: number);
+
+    /**
+     * Check if this position is before `other`.
+     *
+     * @param other A position.
+     * @return `true` if position is on a smaller line
+     * or on the same line on a smaller character.
+     */
+    isBefore(other: Position): boolean;
+
+    /**
+     * Check if this position is before or equal to `other`.
+     *
+     * @param other A position.
+     * @return `true` if position is on a smaller line
+     * or on the same line on a smaller or equal character.
+     */
+    isBeforeOrEqual(other: Position): boolean;
+
+    /**
+     * Check if this position is after `other`.
+     *
+     * @param other A position.
+     * @return `true` if position is on a greater line
+     * or on the same line on a greater character.
+     */
+    isAfter(other: Position): boolean;
+
+    /**
+     * Check if this position is after or equal to `other`.
+     *
+     * @param other A position.
+     * @return `true` if position is on a greater line
+     * or on the same line on a greater or equal character.
+     */
+    isAfterOrEqual(other: Position): boolean;
+
+    /**
+     * Check if this position is equal to `other`.
+     *
+     * @param other A position.
+     * @return `true` if the line and character of the given position are equal to
+     * the line and character of this position.
+     */
+    isEqual(other: Position): boolean;
+
+    /**
+     * Compare this to `other`.
+     *
+     * @param other A position.
+     * @return A number smaller than zero if this position is before the given position,
+     * a number greater than zero if this position is after the given position, or zero when
+     * this and the given position are equal.
+     */
+    compareTo(other: Position): number;
+
+    /**
+     * Create a new position relative to this position.
+     *
+     * @param lineDelta Delta value for the line value, default is `0`.
+     * @param characterDelta Delta value for the character value, default is `0`.
+     * @return A position which line and character is the sum of the current line and
+     * character and the corresponding deltas.
+     */
+    translate(lineDelta?: number, characterDelta?: number): Position;
+
+    /**
+     * Derived a new position relative to this position.
+     *
+     * @param change An object that describes a delta to this position.
+     * @return A position that reflects the given delta. Will return `this` position if the change
+     * is not changing anything.
+     */
+    translate(change: { lineDelta?: number; characterDelta?: number; }): Position;
+
+    /**
+     * Create a new position derived from this position.
+     *
+     * @param line Value that should be used as line value, default is the [existing value](#Position.line)
+     * @param character Value that should be used as character value, default is the [existing value](#Position.character)
+     * @return A position where line and character are replaced by the given values.
+     */
+    with(line?: number, character?: number): Position;
+
+    /**
+     * Derived a new position from this position.
+     *
+     * @param change An object that describes a change to this position.
+     * @return A position that reflects the given change. Will return `this` position if the change
+     * is not changing anything.
+     */
+    with(change: { line?: number; character?: number; }): Position;
+  }
 
   /**
    * A file system watcher notifies about changes to files and folders
@@ -654,8 +1123,7 @@ declare module 'razorback' {
      * - When a [text document](#TextDocument) is already open (e.g.: open in another [visible text editor](#window.visibleTextEditors)) this event is not emitted
      *
      */
-    // TODO:
-    // export const onDidOpenTextDocument: Event<TextDocument>;
+    export const onDidOpenTextDocument: Event<TextDocument>;
 
     /**
      * An event that is emitted when a [text document](#TextDocument) is disposed or when the language id
@@ -665,8 +1133,7 @@ declare module 'razorback' {
      * [window](#window) namespace. Note that this event is not emitted when a [TextEditor](#TextEditor) is closed
      * but the document remains open in another [visible text editor](#window.visibleTextEditors).
      */
-    // TODO:
-    // export const onDidCloseTextDocument: Event<TextDocument>;
+    export const onDidCloseTextDocument: Event<TextDocument>;
 
     /**
      * An event that is emitted when a [text document](#TextDocument) is changed. This usually happens
@@ -689,14 +1156,13 @@ declare module 'razorback' {
      *
      * The current thresholds are 1.5 seconds as overall time budget and a listener can misbehave 3 times before being ignored.
      */
-    // TODO:
+    // TODO
     // export const onWillSaveTextDocument: Event<TextDocumentWillSaveEvent>;
 
     /**
      * An event that is emitted when a [text document](#TextDocument) is saved to disk.
      */
-    // TODO:
-    // export const onDidSaveTextDocument: Event<TextDocument>;
+    export const onDidSaveTextDocument: Event<TextDocument>;
 
     /**
      * Get a workspace configuration object.

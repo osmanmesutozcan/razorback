@@ -2,14 +2,14 @@ import *  as _ from 'lodash';
 import { Thenable } from 'razorback';
 
 import { createLogger } from '../logger';
-import { ICommandHandlerDescription } from '../command/types';
+import { ICommandHandlerDescription } from '../commands/types';
 import { revive } from '../base/marshalling';
 import { CoreContext } from '../core/core';
 
 import * as apiTypes from './types';
 import { ExtHostCommandsShape, CoreBindings } from './protocol';
 import { validateConstraint } from '../base/types';
-import { CoreCommandsComponent } from '../command/component';
+import { CoreCommandsComponent } from '../commands/component';
 
 interface CommandHandler {
   callback: Function;

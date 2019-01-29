@@ -1,4 +1,4 @@
-import { WorkspaceFolder } from 'razorback';
+import * as rback from 'razorback';
 import { CoreWorkspaceComponent } from '../workspace/component';
 import { CoreContext } from '../core/core';
 import { CoreBindings } from './protocol';
@@ -16,7 +16,7 @@ export class ExtHostWorkspace {
     return this._workspaceService.rootPath;
   }
 
-  get workspaceFolders(): WorkspaceFolder[] | undefined {
+  get workspaceFolders(): rback.WorkspaceFolder[] | undefined {
     return this._workspaceService.workspaceFolders;
   }
 

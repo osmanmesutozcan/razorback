@@ -17,15 +17,29 @@ function! s:Request(method, arguments)
 endfunction
 
 " Register autocmds to notify server on certain events.
+" To read documentation `:help {AutoCmd}`
 function! s:Hook()
   augroup razorback
-    autocmd VimEnter     * call s:Notify('VimEnter', [])
-    autocmd FocusGained  * call s:Notify('FocusGained', [])
+    autocmd VimEnter     * call s:Notify('RazorbackAutocmd', ['VimEnter', ])
+    autocmd FocusGained  * call s:Notify('RazorbackAutocmd', ['FocusGained', ])
 
-    autocmd CursorHold   * call s:Notify('CursorHold', [+expand('<abuf>')])
-    autocmd CursorHoldI  * call s:Notify('CursorHoldI', [+expand('<abuf>')])
-    autocmd CursorMoved  * call s:Notify('CursorMoved', [+expand('<abuf>')])
-    autocmd CursorMovedI * call s:Notify('CursorMovedI', [+expand('<abuf>')])
+    autocmd BufAdd       * call s:Notify('RazorbackAutocmd', ['BufAdd', +expand('<abuf>')])
+    autocmd BufDelete    * call s:Notify('RazorbackAutocmd', ['BufDelete', +expand('<abuf>')])
+
+    autocmd BufNewFile   * call s:Notify('RazorbackAutocmd', ['BufNewFile', +expand('<abuf>')])
+    autocmd BufWritePre  * call s:Notify('RazorbackAutocmd', ['BufWritePre', +expand('<abuf>')])
+    autocmd BufWritePost * call s:Notify('RazorbackAutocmd', ['BufWritePost', +expand('<abuf>')])
+
+    autocmd BufEnter     * call s:Notify('RazorbackAutocmd', ['BufEnter', +expand('<abuf>')])
+    autocmd BufWinEnter  * call s:Notify('RazorbackAutocmd', ['BufWinEnter', +expand('<abuf>')])
+
+    autocmd BufLeave     * call s:Notify('RazorbackAutocmd', ['BufLeave', +expand('<abuf>')])
+    autocmd BufWinLeave  * call s:Notify('RazorbackAutocmd', ['BufWinLeave', +expand('<abuf>')])
+
+    autocmd CursorHold   * call s:Notify('RazorbackAutocmd', ['CursorHold', +expand('<abuf>')])
+    autocmd CursorHoldI  * call s:Notify('RazorbackAutocmd', ['CursorHoldI', +expand('<abuf>')])
+    autocmd CursorMoved  * call s:Notify('RazorbackAutocmd', ['CursorMoved', +expand('<abuf>')])
+    autocmd CursorMovedI * call s:Notify('RazorbackAutocmd', ['CursorMovedI', +expand('<abuf>')])
   augroup end
 endfunction
 

@@ -1,7 +1,56 @@
 // tslint:disable:max-line-length
 
-import { ICommandHandlerDescription } from '../command/types';
+import { UriComponents } from '../base/uri';
+import { ICommandHandlerDescription } from '../commands/types';
 import { IDisposable } from '../base/lifecycle';
+
+export enum TextEditorCursorStyle {
+  Line = 1,
+  Block = 2,
+  Underline = 3,
+  LineThin = 4,
+  BlockOutline = 5,
+  UnderlineThin = 6,
+}
+
+export enum TextEditorLineNumbersStyle {
+  Off = 0,
+  On = 1,
+  Relative = 2,
+}
+
+export interface IModelAddedData {
+  uri: UriComponents;
+  versionId: number;
+  lines: string[];
+  EOL: string;
+  modeId: string;
+  isDirty: boolean;
+}
+
+export interface IDocumentsAndEditorsDelta {
+  removedDocuments?: UriComponents[];
+  addedDocuments?: IModelAddedData[];
+  removedEditors?: string[];
+  addedEditors?: ITextEditorAddData[];
+  newActiveEditor?: string;
+}
+
+export interface ITextEditorAddData {
+  id: string;
+  documentUri: UriComponents;
+  options: IResolvedTextEditorConfiguration;
+  // selections: ISelection[];
+  // visibleRanges: IRange[];
+  // editorPosition: EditorViewColumn;
+}
+
+export interface IResolvedTextEditorConfiguration {
+  tabSize: number;
+  insertSpaces: boolean;
+  cursorStyle: TextEditorCursorStyle;
+  lineNumbers: TextEditorLineNumbersStyle;
+}
 
 // -- extension host
 
@@ -9,6 +58,7 @@ export const ExtHostBindings = {
   ExtHostCommands: Symbol.for('razorback.ext.hostcommands'),
   ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
   ExtHostWorkspace: Symbol.for('razorback.ext.workspace'),
+  ExtHostDocuments: Symbol.for('razorback.ext.documents'),
 };
 
 export interface ExtHostCommandsShape {
@@ -31,13 +81,14 @@ export namespace ObjectIdentifier {
   }
 }
 
-// -- core
+// -- core context
 
 export const CoreBindings = {
   CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
   CoreCommandsComponent: Symbol.for('razorback.core.commands'),
   CoreMessageComponent: Symbol.for('razorback.core.message'),
   CoreWorkspaceComponent: Symbol.for('razorback.core.workspace'),
+  CoreDocumentsComponent: Symbol.for('razorback.core.documents'),
 };
 
 export interface CoreCommandsShape extends IDisposable {
