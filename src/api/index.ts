@@ -8,7 +8,6 @@ import { CoreContext } from '../core/core';
 import { EventEmitter } from '../base/event';
 import { IExtensionDescription } from '../extension/types';
 
-
 import * as apiTypes from './types';
 import { ExtHostBindings } from './protocol';
 import { ExtHostCommands } from './command';
@@ -97,6 +96,7 @@ export function createApiFactory(coreContext: CoreContext) {
       EndOfLine: apiTypes.EndOfLine,
       Position: apiTypes.Position,
       Range: apiTypes.Range,
+      Selection: apiTypes.Selection,
       Uri: URI,
     };
   };

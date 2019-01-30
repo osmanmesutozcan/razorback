@@ -30,8 +30,7 @@ export class CoreDocumentsComponent {
   readonly onDidSaveTextDocument: Event<BufferNumber> = this._onDidSaveTextDocument.event;
   readonly onDidCloseTextDocument: Event<BufferNumber> = this._onDidCloseTextDocument.event;
 
-  // Neovim will initially start with buffer no 1
-  // and increment it each new buffer.
+  // Map of opened buffers wrapped with text document class.
   private readonly _documents = new Map<number, TextDocument | undefined>();
 
   constructor(
@@ -83,16 +82,10 @@ export class CoreDocumentsComponent {
   }
 
   /**
-   * Fired when changed a buffer.
-   */
-  private async handleDidChangeTextDocument(id: BufferNumber) {
-    await this.ensureDocument(id);
-  }
-
-  /**
    * Fired when closed a buffer.
    */
   private async handleDidCloseTextDocument(id: BufferNumber) {
-    await this.ensureDocument(id);
+    const document = await this.ensureDocument(id);
+    document.dispose();
   }
 }

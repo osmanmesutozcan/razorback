@@ -8,6 +8,7 @@ import { Range, Position } from '../api/types';
 import { regExpLeadsToEndlessLoop } from '../base/strings';
 import { getWordAtText, ensureValidWordDefinition, PrefixSumComputer } from '../base/model';
 import { URI } from '../base/uri';
+import { IDisposable } from '../base/lifecycle';
 
 const logger = createLogger('razorback#documents#document');
 
@@ -30,7 +31,7 @@ export enum EndOfLine {
   CRLF = 2,
 }
 
-export class TextDocument implements rback.TextDocument {
+export class TextDocument implements rback.TextDocument, IDisposable {
 
   // TODO:
   private _uri: URI = URI.file('/tmp/test.txt');
@@ -91,20 +92,28 @@ export class TextDocument implements rback.TextDocument {
 
   constructor(
     _nvim: NeovimClient,
-    _buffer: NeovimBuffer,
+    buffer: NeovimBuffer,
   ) {
 
-    _buffer.listen(
+    this._attach(buffer);
+    this.dispose = () => this._dispose.call(this, buffer);
+  }
+
+  dispose: () => void;
+  private _dispose(buffer: NeovimBuffer) {
+    this._isClosed = true;
+
+    buffer.unlisten(
       'detach',
       this.handleDetachEvent.bind(this),
     );
 
-    _buffer.listen(
+    buffer.unlisten(
       'lines',
       _.throttle(this.handleLinesEvent.bind(this), 20, { leading: true }),
     );
 
-    _buffer.listen(
+    buffer.unlisten(
       'changedtick',
       _.throttle(this.handleChangedtickEvent.bind(this), 20, { leading: true }),
     );
@@ -176,15 +185,34 @@ export class TextDocument implements rback.TextDocument {
 
   // -- nvim buffer event listeners
 
-  private handleDetachEvent(_buffer: NeovimBuffer) {
-    this._isClosed = true;
+  private _attach(buffer: NeovimBuffer) {
+    buffer.listen(
+      'detach',
+      this.handleDetachEvent.bind(this),
+    );
+
+    buffer.listen(
+      'lines',
+      _.throttle(this.handleLinesEvent.bind(this), 20, { leading: true }),
+    );
+
+    buffer.listen(
+      'changedtick',
+      _.throttle(this.handleChangedtickEvent.bind(this), 20, { leading: true }),
+    );
+
+  }
+
+  private handleDetachEvent(buffer: NeovimBuffer) {
+    logger.debug(`TextDocument#handleDetachEvent: re-attaching ${buffer.id}`);
+    _.delay(() => this._attach(buffer), 50);
   }
 
   private handleChangedtickEvent(
     buffer: NeovimBuffer,
     tick: number,
   ) {
-    logger.debug('changed tick', buffer.id, tick);
+    logger.debug(`TextDocument#handleChangedtickEvent ${buffer.id}, ${tick}`);
   }
 
   private async handleLinesEvent(
@@ -221,7 +249,7 @@ export class TextDocument implements rback.TextDocument {
 
   // -- range math
 
-  protected _ensureLineStarts(): void {
+  private _ensureLineStarts(): void {
     if (!this._lineStarts) {
       const eolLength = this._eol.length;
       const linesLength = this._lines.length;
