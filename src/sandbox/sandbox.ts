@@ -10,6 +10,8 @@ import { ICreateApi } from '../api';
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
 
+const logger = createLogger('razorback#sandbox');
+
 /**
  * List of globals to remove from sandbox.
  */

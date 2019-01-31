@@ -1,7 +1,17 @@
 // tslint:disable:no-parameter-reassignment
 
+import * as path from 'path';
 import * as rback from 'razorback';
 import { illegalArgument } from '../error';
+import { URI } from '../base/uri';
+
+export enum ConfigurationTarget {
+  Global = 1,
+
+  Workspace = 2,
+
+  WorkspaceFolder = 3,
+}
 
 export class Disposable {
   static from(...inDisposables: { dispose(): any }[]): Disposable {
@@ -442,3 +452,50 @@ export enum EndOfLine {
   CRLF = 2,
 }
 
+export class RelativePattern {
+  base: string;
+  baseFolder?: URI;
+
+  pattern: string;
+
+  constructor(base: rback.WorkspaceFolder | string, pattern: string) {
+    if (typeof base !== 'string') {
+      if (!base || !URI.isUri(base.uri)) {
+        throw illegalArgument('base');
+      }
+    }
+
+    if (typeof pattern !== 'string') {
+      throw illegalArgument('pattern');
+    }
+
+    if (typeof base === 'string') {
+      this.base = base;
+    } else {
+      this.baseFolder = base.uri;
+      this.base = base.uri.fsPath;
+    }
+
+    this.pattern = pattern;
+  }
+
+  public pathToRelative(from: string, to: string): string {
+    return path.relative(from, to);
+  }
+}
+
+export class CodeLens {
+
+  range: Range;
+
+  command: rback.Command | undefined;
+
+  constructor(range: Range, command?: rback.Command) {
+    this.range = range;
+    this.command = command;
+  }
+
+  get isResolved(): boolean {
+    return !!this.command;
+  }
+}

@@ -15,7 +15,7 @@ import { ICoreOptions, CoreBindings, ClientCommandMappings } from './types';
 const logger = createLogger('razorback#core');
 
 /**
- * Core is a container for razorback artifacts.
+ * Core is a container for razorback services and configurations.
  */
 @injectable()
 export class CoreContext extends Container {

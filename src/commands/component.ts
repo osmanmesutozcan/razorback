@@ -49,11 +49,14 @@ export class CoreCommandsComponent implements CoreCommandsShape, IComponent, IDi
       throw new Error(`Command ${id} not found.`);
     }
 
-    return Promise.resolve(command.handler(this.core));
+    return command.handler(this.core);
   }
 
   async $getCommands(): Promise<string[]> {
-    throw new Error('Method not implemented.');
+    const commands = CommandsRegistry.getCommands();
+    return Object.keys(commands).map((key: string) => {
+      return commands[key].id;
+    });
   }
 
   dispose(): void {

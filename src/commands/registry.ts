@@ -44,20 +44,6 @@ export interface ICommandService {
 
 export const ICommandService = createDecorator<ICommandService>('commandService');
 
-export class NullCommandService implements ICommandService {
-  _serviceBrand: undefined;
-
-  onWillExecuteCommand() {
-    return {
-      dispose: () => { },
-    };
-  }
-
-  async executeCommand() {
-    return undefined;
-  }
-}
-
 class CommandsRegistryImpl implements IComponent, ICommandsRegistry {
   private readonly _commands = new Map<string, LinkedList<ICommand>>();
 

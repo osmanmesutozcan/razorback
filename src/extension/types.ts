@@ -33,6 +33,19 @@ export interface IExtensionContext {
   // stuff
 }
 
+export const nullExtensionDescription = Object.freeze(<IExtensionDescription>{
+  id: 'nullExtensionDescription',
+  identifier: 'nullExtensionDescription',
+  isUnderDevelopment: false,
+  name: 'Null Extension Description',
+  version: '0.0.0',
+  publisher: 'vscode',
+  enableProposedApi: false,
+  engines: { vscode: '' },
+  extensionLocation: URI.parse('void:location'),
+  isBuiltin: false,
+});
+
 export interface IExtensionDescription extends IExtensionManifest {
   // Generalized from 'ExtensionIdentifier' type.
   // Will keep a placeholder value for now.

@@ -32,6 +32,12 @@ export class CoreDocumentsComponent {
 
   // Map of opened buffers wrapped with text document class.
   private readonly _documents = new Map<number, TextDocument | undefined>();
+  getAllDocuments(): TextDocument[] {
+    const documents: (TextDocument | undefined)[] = [];
+
+    this._documents.forEach(v => documents.push(v));
+    return documents.filter(v => v !== undefined) as TextDocument[];
+  }
 
   constructor(
     @inject(CoreBindings.NEOVIM_CLIENT) private readonly nvim: NeovimClient,

@@ -15,6 +15,7 @@ import { CoreCommandsComponent } from './commands/component';
 import { CoreMessageComponent } from './message/component';
 import { CoreWorkspaceComponent } from './workspace/component';
 import { CoreDocumentsComponent } from './documents/component';
+import { CoreLanguagesComponent } from './languages/component';
 
 const logger = createLogger('razorback#main');
 
@@ -29,8 +30,10 @@ export async function main(options: ICoreOptions) {
   // -- singletons
   await coreContext
     .component(CoreBindings.CoreWorkspaceComponent, CoreWorkspaceComponent);
-  coreContext
+  await coreContext
     .component(CoreBindings.CoreDocumentsComponent, CoreDocumentsComponent);
+  await coreContext
+    .component(CoreBindings.CoreLanguagesComponent, CoreLanguagesComponent);
 
   // NOTE: This is going to initialize services. We need to bring a system
   // that registers onActivation event listener to extensions.

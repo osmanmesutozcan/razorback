@@ -20,8 +20,9 @@ endfunction
 " To read documentation `:help {AutoCmd}`
 function! s:Hook()
   augroup razorback
-    autocmd VimEnter     * call s:Notify('RazorbackAutocmd', ['VimEnter', ])
-    autocmd FocusGained  * call s:Notify('RazorbackAutocmd', ['FocusGained', ])
+    autocmd VimEnter     * call s:Notify('RazorbackAutocmd', ['VimEnter'])
+    autocmd FocusGained  * call s:Notify('RazorbackAutocmd', ['FocusGained'])
+    autocmd FocusLost    * call s:Notify('RazorbackAutocmd', ['FocusLost'])
 
     autocmd BufAdd       * call s:Notify('RazorbackAutocmd', ['BufAdd', +expand('<abuf>')])
     autocmd BufDelete    * call s:Notify('RazorbackAutocmd', ['BufDelete', +expand('<abuf>')])
@@ -35,6 +36,9 @@ function! s:Hook()
 
     autocmd BufLeave     * call s:Notify('RazorbackAutocmd', ['BufLeave', +expand('<abuf>')])
     autocmd BufWinLeave  * call s:Notify('RazorbackAutocmd', ['BufWinLeave', +expand('<abuf>')])
+
+    autocmd WinEnter     * call s:Notify('RazorbackAutocmd', ['WinEnter', +expand('<abuf>')])
+    autocmd WinLeave     * call s:Notify('RazorbackAutocmd', ['WinLeave', +expand('<abuf>')])
 
     autocmd CursorHold   * call s:Notify('RazorbackAutocmd', ['CursorHold', +expand('<abuf>')])
     autocmd CursorHoldI  * call s:Notify('RazorbackAutocmd', ['CursorHoldI', +expand('<abuf>')])

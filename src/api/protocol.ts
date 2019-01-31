@@ -56,9 +56,12 @@ export interface IResolvedTextEditorConfiguration {
 
 export const ExtHostBindings = {
   ExtHostCommands: Symbol.for('razorback.ext.hostcommands'),
-  ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
   ExtHostWorkspace: Symbol.for('razorback.ext.workspace'),
   ExtHostDocuments: Symbol.for('razorback.ext.documents'),
+  ExtHostLanguages: Symbol.for('razorback.ext.languages'),
+  ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
+  ExtHostConfiguration: Symbol.for('razorback.ext.configuration'),
+  ExtHostExtensions: Symbol.for('razorback.ext.extensions'),
 };
 
 export interface ExtHostCommandsShape {
@@ -84,11 +87,12 @@ export namespace ObjectIdentifier {
 // -- core context
 
 export const CoreBindings = {
-  CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
-  CoreCommandsComponent: Symbol.for('razorback.core.commands'),
   CoreMessageComponent: Symbol.for('razorback.core.message'),
+  CoreCommandsComponent: Symbol.for('razorback.core.commands'),
   CoreWorkspaceComponent: Symbol.for('razorback.core.workspace'),
   CoreDocumentsComponent: Symbol.for('razorback.core.documents'),
+  CoreLanguagesComponent: Symbol.for('razorback.core.languages'),
+  CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
 };
 
 export interface CoreCommandsShape extends IDisposable {
@@ -97,4 +101,3 @@ export interface CoreCommandsShape extends IDisposable {
   $executeCommand<T>(id: string, args: any[]): Promise<T>;
   $getCommands(): Promise<string[]>;
 }
-

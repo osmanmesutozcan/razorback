@@ -33,4 +33,8 @@ export class ExtHostDocuments {
       this._onDidSaveTextDocument.fire(document);
     });
   }
+
+  getAllDocuments(): rback.TextDocument[] {
+    return this._documentsService.getAllDocuments();
+  }
 }

@@ -4,13 +4,13 @@ import { dispose } from '../base/lifecycle';
 import { EventEmitter } from '../base/event';
 import { IDocumentsAndEditorsDelta } from './protocol';
 
-/*
- * This module keeps track of active buffer.
+/**
+ * This class wraps around a neovim window.
  */
 export class ExtHostEditor {
-  // TODO:
-  // private readonly _onDidChangeActiveTextEditor = new EventEmitter<rback.TextEditor>();
-  // readonly onDidChangeActiveTextEditor = this._onDidChangeActiveTextEditor.event;
+  private readonly $_onDidChangeActiveTextEditor = new EventEmitter<rback.TextEditor>();
+
+  readonly $onDidChangeActiveTextEditor = this.$_onDidChangeActiveTextEditor.event;
 
   private _disposables: rback.Disposable[] = [];
 
@@ -21,7 +21,7 @@ export class ExtHostEditor {
   ) { }
 
   dispose() {
-    this._disposables = dispose(this._disposables);
+    //
   }
 
   $acceptDocumentsAndEditorsDelta(delta: IDocumentsAndEditorsDelta) {

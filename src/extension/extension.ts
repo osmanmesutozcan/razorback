@@ -55,7 +55,7 @@ export class Extension {
    */
   async activate(context: any): Promise<boolean> {
     this.isActive = true;
-    return this.extension.activate(context);
+    return this.extension.activate.apply(global, [context]);
   }
 
   /**

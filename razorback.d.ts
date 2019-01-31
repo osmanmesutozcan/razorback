@@ -3,6 +3,133 @@
 declare module 'razorback' {
 
   /**
+   * A code lens represents a [command](#Command) that should be shown along with
+   * source text, like the number of references, a way to run tests, etc.
+   *
+   * A code lens is _unresolved_ when no command is associated to it. For performance
+   * reasons the creation of a code lens and resolving should be done to two stages.
+   *
+   * @see [CodeLensProvider.provideCodeLenses](#CodeLensProvider.provideCodeLenses)
+   * @see [CodeLensProvider.resolveCodeLens](#CodeLensProvider.resolveCodeLens)
+   */
+  export class CodeLens {
+
+    /**
+     * The range in which this code lens is valid. Should only span a single line.
+     */
+    range: Range;
+
+    /**
+     * The command this code lens represents.
+     */
+    command?: Command;
+
+    /**
+     * `true` when there is a command associated.
+     */
+    readonly isResolved: boolean;
+
+    /**
+     * Creates a new code lens object.
+     *
+     * @param range The range to which this code lens applies.
+     * @param command The command associated to this code lens.
+     */
+    constructor(range: Range, command?: Command);
+  }
+
+  /**
+   * A relative pattern is a helper to construct glob patterns that are matched
+   * relatively to a base path. The base path can either be an absolute file path
+   * or a [workspace folder](#WorkspaceFolder).
+   */
+  export class RelativePattern {
+
+    /**
+     * A base file path to which this pattern will be matched against relatively.
+     */
+    base: string;
+
+    /**
+     * A file glob pattern like `*.{ts,js}` that will be matched on file paths
+     * relative to the base path.
+     *
+     * Example: Given a base of `/home/work/folder` and a file path of `/home/work/folder/index.js`,
+     * the file glob pattern will match on `index.js`.
+     */
+    pattern: string;
+
+    /**
+     * Creates a new relative pattern object with a base path and pattern to match. This pattern
+     * will be matched on file paths relative to the base path.
+     *
+     * @param base A base file path to which this pattern will be matched against relatively.
+     * @param pattern A file glob pattern like `*.{ts,js}` that will be matched on file paths
+     * relative to the base path.
+     */
+    constructor(base: WorkspaceFolder | string, pattern: string)
+  }
+
+  /**
+   * A file glob pattern to match file paths against. This can either be a glob pattern string
+   * (like `**​/*.{ts,js}` or `*.{ts,js}`) or a [relative pattern](#RelativePattern).
+   *
+   * Glob patterns can have the following syntax:
+   * * `*` to match one or more characters in a path segment
+   * * `?` to match on one character in a path segment
+   * * `**` to match any number of path segments, including none
+   * * `{}` to group conditions (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
+   * * `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
+   * * `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
+   *
+   * Note: a backslash (`\`) is not valid within a glob pattern. If you have an existing file
+   * path to match against, consider to use the [relative pattern](#RelativePattern) support
+   * that takes care of converting any backslash into slash. Otherwise, make sure to convert
+   * any backslash to slash when creating the glob pattern.
+   */
+  export type GlobPattern = string | RelativePattern;
+
+  /**
+   * A document filter denotes a document by different properties like
+   * the [language](#TextDocument.languageId), the [scheme](#Uri.scheme) of
+   * its resource, or a glob-pattern that is applied to the [path](#TextDocument.fileName).
+   *
+   * @sample A language filter that applies to typescript files on disk: `{ language: 'typescript', scheme: 'file' }`
+   * @sample A language filter that applies to all package.json paths: `{ language: 'json', scheme: 'untitled', pattern: '**​/package.json' }`
+   */
+  export interface DocumentFilter {
+
+    /**
+     * A language id, like `typescript`.
+     */
+    language?: string;
+
+    /**
+     * A Uri [scheme](#Uri.scheme), like `file` or `untitled`.
+     */
+    scheme?: string;
+
+    /**
+     * A [glob pattern](#GlobPattern) that is matched on the absolute path of the document. Use a [relative pattern](#RelativePattern)
+     * to filter documents to a [workspace folder](#WorkspaceFolder).
+     */
+    pattern?: GlobPattern;
+  }
+
+  /**
+   * A language selector is the combination of one or many language identifiers
+   * and [language filters](#DocumentFilter).
+   *
+   * *Note* that a document selector that is just a language identifier selects *all*
+   * documents, even those that are not saved on disk. Only use such selectors when
+   * a feature works without further context, e.g without the need to resolve related
+   * 'files'.
+   *
+   * @sample `let sel:DocumentSelector = { scheme: 'file', language: 'typescript' }`;
+   */
+  export type DocumentSelector = DocumentFilter | string | Array<DocumentFilter | string>;
+
+  /**
    * A universal resource identifier representing either a file on disk
    * or another resource, like untitled resources.
    */
@@ -227,27 +354,26 @@ declare module 'razorback' {
     onCancellationRequested: Event<any>;
   }
 
-  // TODO
-  // /**
-  //  * A cancellation source creates and controls a [cancellation token](#CancellationToken).
-  //  */
-  // export class CancellationTokenSource {
+  /**
+   * A cancellation source creates and controls a [cancellation token](#CancellationToken).
+   */
+  export class CancellationTokenSource {
 
-  //   /**
-  //    * The cancellation token of this source.
-  //    */
-  //   token: CancellationToken;
+    /**
+     * The cancellation token of this source.
+     */
+    token: CancellationToken;
 
-  //   /**
-  //    * Signal cancellation on the token.
-  //    */
-  //   cancel(): void;
+    /**
+     * Signal cancellation on the token.
+     */
+    cancel(): void;
 
-  //   /**
-  //    * Dispose object and free resources.
-  //    */
-  //   dispose(): void;
-  // }
+    /**
+     * Dispose object and free resources.
+     */
+    dispose(): void;
+  }
 
   /**
    * A range represents an ordered pair of two positions.
@@ -869,59 +995,6 @@ declare module 'razorback' {
     readonly removed: WorkspaceFolder[];
   }
 
-  // TODO
-  // /**
-  //  * A relative pattern is a helper to construct glob patterns that are matched
-  //  * relatively to a base path. The base path can either be an absolute file path
-  //  * or a [workspace folder](#WorkspaceFolder).
-  //  */
-  // export class RelativePattern {
-
-  //   /**
-  //    * A base file path to which this pattern will be matched against relatively.
-  //    */
-  //   base: string;
-
-  //   /**
-  //    * A file glob pattern like `*.{ts,js}` that will be matched on file paths
-  //    * relative to the base path.
-  //    *
-  //    * Example: Given a base of `/home/work/folder` and a file path of `/home/work/folder/index.js`,
-  //    * the file glob pattern will match on `index.js`.
-  //    */
-  //   pattern: string;
-
-  //   /**
-  //    * Creates a new relative pattern object with a base path and pattern to match. This pattern
-  //    * will be matched on file paths relative to the base path.
-  //    *
-  //    * @param base A base file path to which this pattern will be matched against relatively.
-  //    * @param pattern A file glob pattern like `*.{ts,js}` that will be matched on file paths
-  //    * relative to the base path.
-  //    */
-  //   constructor(base: WorkspaceFolder | string, pattern: string)
-  // }
-
-  // TODO
-  // /**
-  //  * A file glob pattern to match file paths against. This can either be a glob pattern string
-  //  * (like `**​/*.{ts,js}` or `*.{ts,js}`) or a [relative pattern](#RelativePattern).
-  //  *
-  //  * Glob patterns can have the following syntax:
-  //  * * `*` to match one or more characters in a path segment
-  //  * * `?` to match on one character in a path segment
-  //  * * `**` to match any number of path segments, including none
-  //  * * `{}` to group conditions (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
-  //  * * `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
-  //  * * `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
-  //  *
-  //  * Note: a backslash (`\`) is not valid within a glob pattern. If you have an existing file
-  //  * path to match against, consider to use the [relative pattern](#RelativePattern) support
-  //  * that takes care of converting any backslash into slash. Otherwise, make sure to convert
-  //  * any backslash to slash when creating the glob pattern.
-  //  */
-  // export type GlobPattern = string | RelativePattern;
-
   /**
    * Represents an editor that is attached to a [document](#TextDocument).
    */
@@ -1200,8 +1273,7 @@ declare module 'razorback' {
     /**
      * All text documents currently known to the system.
      */
-    // TODO:
-    // export const textDocuments: TextDocument[];
+    export const textDocuments: TextDocument[];
 
     /**
      * Opens a document. Will return early if this document is already open. Otherwise
@@ -1323,14 +1395,14 @@ declare module 'razorback' {
      * @param resource A resource for which the configuration is asked for
      * @return The full configuration or a subset.
      */
-    // TODO:
-    // export function getConfiguration(section?: string, resource?: Uri | null): WorkspaceConfiguration;
+    // TODO: WIP
+    export function getConfiguration(section?: string, resource?: Uri | null): WorkspaceConfiguration;
 
     /**
      * An event that is emitted when the [configuration](#WorkspaceConfiguration) changed.
      */
-    // TODO:
-    // export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
+		// TODO: WIP
+    export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
 
     /**
      * ~~Register a task provider.~~
@@ -1341,8 +1413,9 @@ declare module 'razorback' {
      * @param provider A task provider.
      * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
      */
-    // TODO:
+		// TODO:
     // export function registerTaskProvider(type: string, provider: TaskProvider): Disposable;
+    export function registerTaskProvider(type: string, provider: any): Disposable;
 
     /**
      * Register a filesystem provider for a given scheme, e.g. `ftp`.
@@ -1357,6 +1430,803 @@ declare module 'razorback' {
      */
     // TODO:
     // export function registerFileSystemProvider(scheme: string, provider: FileSystemProvider, options?: { isCaseSensitive?: boolean, isReadonly?: boolean }): Disposable;
+  }
+
+  /**
+   * The configuration target
+   */
+  export enum ConfigurationTarget {
+    /**
+     * Global configuration
+    */
+    Global = 1,
+
+    /**
+     * Workspace configuration
+     */
+    Workspace = 2,
+
+    /**
+     * Workspace folder configuration
+     */
+    WorkspaceFolder = 3
+  }
+
+  /**
+   * Represents the configuration. It is a merged view of
+   *
+   * - Default configuration
+   * - Global configuration
+   * - Workspace configuration (if available)
+   * - Workspace folder configuration of the requested resource (if available)
+   *
+   * *Global configuration* comes from User Settings and shadows Defaults.
+   *
+   * *Workspace configuration* comes from Workspace Settings and shadows Global configuration.
+   *
+   * *Workspace Folder configuration* comes from `.vscode` folder under one of the [workspace folders](#workspace.workspaceFolders).
+   *
+   * *Note:* Workspace and Workspace Folder configurations contains `launch` and `tasks` settings. Their basename will be
+   * part of the section identifier. The following snippets shows how to retrieve all configurations
+   * from `launch.json`:
+   *
+   * ```ts
+   * // launch.json configuration
+   * const config = workspace.getConfiguration('launch', vscode.window.activeTextEditor.document.uri);
+   *
+   * // retrieve values
+   * const values = config.get('configurations');
+   * ```
+   *
+   * Refer to [Settings](https://code.visualstudio.com/docs/getstarted/settings) for more information.
+   */
+  export interface WorkspaceConfiguration {
+
+    /**
+     * Return a value from this configuration.
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @return The value `section` denotes or `undefined`.
+     */
+    get<T>(section: string): T | undefined;
+
+    /**
+     * Return a value from this configuration.
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @param defaultValue A value should be returned when no value could be found, is `undefined`.
+     * @return The value `section` denotes or the default.
+     */
+    get<T>(section: string, defaultValue: T): T;
+
+    /**
+     * Check if this configuration has a certain value.
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @return `true` if the section doesn't resolve to `undefined`.
+     */
+    has(section: string): boolean;
+
+    /**
+     * Retrieve all information about a configuration setting. A configuration value
+     * often consists of a *default* value, a global or installation-wide value,
+     * a workspace-specific value and a folder-specific value.
+     *
+     * The *effective* value (returned by [`get`](#WorkspaceConfiguration.get))
+     * is computed like this: `defaultValue` overwritten by `globalValue`,
+     * `globalValue` overwritten by `workspaceValue`. `workspaceValue` overwritten by `workspaceFolderValue`.
+     * Refer to [Settings Inheritance](https://code.visualstudio.com/docs/getstarted/settings)
+     * for more information.
+     *
+     * *Note:* The configuration name must denote a leaf in the configuration tree
+     * (`editor.fontSize` vs `editor`) otherwise no result is returned.
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @return Information about a configuration setting or `undefined`.
+     */
+    inspect<T>(section: string): { key: string; defaultValue?: T; globalValue?: T; workspaceValue?: T, workspaceFolderValue?: T } | undefined;
+
+    /**
+     * Update a configuration value. The updated configuration values are persisted.
+     *
+     * A value can be changed in
+     *
+     * - [Global configuration](#ConfigurationTarget.Global): Changes the value for all instances of the editor.
+     * - [Workspace configuration](#ConfigurationTarget.Workspace): Changes the value for current workspace, if available.
+     * - [Workspace folder configuration](#ConfigurationTarget.WorkspaceFolder): Changes the value for the
+     * [Workspace folder](#workspace.workspaceFolders) to which the current [configuration](#WorkspaceConfiguration) is scoped to.
+     *
+     * *Note 1:* Setting a global value in the presence of a more specific workspace value
+     * has no observable effect in that workspace, but in others. Setting a workspace value
+     * in the presence of a more specific folder value has no observable effect for the resources
+     * under respective [folder](#workspace.workspaceFolders), but in others. Refer to
+     * [Settings Inheritance](https://code.visualstudio.com/docs/getstarted/settings) for more information.
+     *
+     * *Note 2:* To remove a configuration value use `undefined`, like so: `config.update('somekey', undefined)`
+     *
+     * Will throw error when
+     * - Writing a configuration which is not registered.
+     * - Writing a configuration to workspace or folder target when no workspace is opened
+     * - Writing a configuration to folder target when there is no folder settings
+     * - Writing to folder target without passing a resource when getting the configuration (`workspace.getConfiguration(section, resource)`)
+     * - Writing a window configuration to folder target
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @param value The new value.
+     * @param configurationTarget The [configuration target](#ConfigurationTarget) or a boolean value.
+     *  - If `true` configuration target is `ConfigurationTarget.Global`.
+     *  - If `false` configuration target is `ConfigurationTarget.Workspace`.
+     *  - If `undefined` or `null` configuration target is
+     *  `ConfigurationTarget.WorkspaceFolder` when configuration is resource specific
+     *  `ConfigurationTarget.Workspace` otherwise.
+     */
+    update(section: string, value: any, configurationTarget?: ConfigurationTarget | boolean): Thenable<void>;
+
+    /**
+     * Readable dictionary that backs this configuration.
+     */
+    readonly [key: string]: any;
+  }
+
+  /**
+   * An event describing the change in Configuration
+   */
+  export interface ConfigurationChangeEvent {
+
+    /**
+     * Returns `true` if the given section for the given resource (if provided) is affected.
+     *
+     * @param section Configuration name, supports _dotted_ names.
+     * @param resource A resource Uri.
+     * @return `true` if the given section for the given resource (if provided) is affected.
+     */
+    affectsConfiguration(section: string, resource?: Uri): boolean;
+  }
+
+  /**
+   * A tuple of two characters, like a pair of
+   * opening and closing brackets.
+   */
+  export type CharacterPair = [string, string];
+
+  /**
+   * Describes how comments for a language work.
+   */
+  export interface CommentRule {
+
+    /**
+     * The line comment token, like `// this is a comment`
+     */
+    lineComment?: string;
+
+    /**
+     * The block comment character pair, like `/* block comment *&#47;`
+     */
+    blockComment?: CharacterPair;
+  }
+
+  /**
+   * Describes indentation rules for a language.
+   */
+  export interface IndentationRule {
+    /**
+     * If a line matches this pattern, then all the lines after it should be unindented once (until another rule matches).
+     */
+    decreaseIndentPattern: RegExp;
+    /**
+     * If a line matches this pattern, then all the lines after it should be indented once (until another rule matches).
+     */
+    increaseIndentPattern: RegExp;
+    /**
+     * If a line matches this pattern, then **only the next line** after it should be indented once.
+     */
+    indentNextLinePattern?: RegExp;
+    /**
+     * If a line matches this pattern, then its indentation should not be changed and it should not be evaluated against the other rules.
+     */
+    unIndentedLinePattern?: RegExp;
+  }
+
+  /**
+   * Describes what to do with the indentation when pressing Enter.
+   */
+  export enum IndentAction {
+    /**
+     * Insert new line and copy the previous line's indentation.
+     */
+    None = 0,
+    /**
+     * Insert new line and indent once (relative to the previous line's indentation).
+     */
+    Indent = 1,
+    /**
+     * Insert two new lines:
+     *  - the first one indented which will hold the cursor
+     *  - the second one at the same indentation level
+     */
+    IndentOutdent = 2,
+    /**
+     * Insert new line and outdent once (relative to the previous line's indentation).
+     */
+    Outdent = 3
+  }
+
+  /**
+   * Describes what to do when pressing Enter.
+   */
+  export interface EnterAction {
+    /**
+     * Describe what to do with the indentation.
+     */
+    indentAction: IndentAction;
+    /**
+     * Describes text to be appended after the new line and after the indentation.
+     */
+    appendText?: string;
+    /**
+     * Describes the number of characters to remove from the new line's indentation.
+     */
+    removeText?: number;
+  }
+
+  /**
+   * Describes a rule to be evaluated when pressing Enter.
+   */
+  export interface OnEnterRule {
+    /**
+     * This rule will only execute if the text before the cursor matches this regular expression.
+     */
+    beforeText: RegExp;
+    /**
+     * This rule will only execute if the text after the cursor matches this regular expression.
+     */
+    afterText?: RegExp;
+    /**
+     * The action to execute.
+     */
+    action: EnterAction;
+  }
+
+  /**
+   * Represents an extension.
+   *
+   * To get an instance of an `Extension` use [getExtension](#extensions.getExtension).
+   */
+  export interface Extension<T> {
+
+    /**
+     * The canonical extension identifier in the form of: `publisher.name`.
+     */
+    readonly id: string;
+
+    /**
+     * The absolute file path of the directory containing this extension.
+     */
+    readonly extensionPath: string;
+
+    /**
+     * `true` if the extension has been activated.
+     */
+    readonly isActive: boolean;
+
+    /**
+     * The parsed contents of the extension's package.json.
+     */
+    readonly packageJSON: any;
+
+    /**
+     * The public API exported by this extension. It is an invalid action
+     * to access this field before this extension has been activated.
+     */
+    readonly exports: T;
+
+    /**
+     * Activates this extension and returns its public API.
+     *
+     * @return A promise that will resolve when this extension has been activated.
+     */
+    activate(): Thenable<T>;
+  }
+
+  /**
+   * The language configuration interfaces defines the contract between extensions
+   * and various editor features, like automatic bracket insertion, automatic indentation etc.
+   */
+  export interface LanguageConfiguration {
+    /**
+     * The language's comment settings.
+     */
+    comments?: CommentRule;
+    /**
+     * The language's brackets.
+     * This configuration implicitly affects pressing Enter around these brackets.
+     */
+    brackets?: CharacterPair[];
+    /**
+     * The language's word definition.
+     * If the language supports Unicode identifiers (e.g. JavaScript), it is preferable
+     * to provide a word definition that uses exclusion of known separators.
+     * e.g.: A regex that matches anything except known separators (and dot is allowed to occur in a floating point number):
+     *   /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g
+     */
+    wordPattern?: RegExp;
+    /**
+     * The language's indentation settings.
+     */
+    indentationRules?: IndentationRule;
+    /**
+     * The language's rules to be evaluated when pressing Enter.
+     */
+    onEnterRules?: OnEnterRule[];
+
+    /**
+     * **Deprecated** Do not use.
+     *
+     * @deprecated Will be replaced by a better API soon.
+     */
+    __electricCharacterSupport?: {
+      /**
+       * This property is deprecated and will be **ignored** from
+       * the editor.
+       * @deprecated
+       */
+      brackets?: any;
+      /**
+       * This property is deprecated and not fully supported anymore by
+       * the editor (scope and lineStart are ignored).
+       * Use the autoClosingPairs property in the language configuration file instead.
+       * @deprecated
+       */
+      docComment?: {
+        scope: string;
+        open: string;
+        lineStart: string;
+        close?: string;
+      };
+    };
+
+    /**
+     * **Deprecated** Do not use.
+     *
+     * @deprecated * Use the autoClosingPairs property in the language configuration file instead.
+     */
+    __characterPairSupport?: {
+      autoClosingPairs: {
+        open: string;
+        close: string;
+        notIn?: string[];
+      }[];
+    };
+  }
+
+  /**
+   * Namespace for participating in language-specific editor [features](https://code.visualstudio.com/docs/editor/editingevolved),
+   * like IntelliSense, code actions, diagnostics etc.
+   *
+   * Many programming languages exist and there is huge variety in syntaxes, semantics, and paradigms. Despite that, features
+   * like automatic word-completion, code navigation, or code checking have become popular across different tools for different
+   * programming languages.
+   *
+   * The editor provides an API that makes it simple to provide such common features by having all UI and actions already in place and
+   * by allowing you to participate by providing data only. For instance, to contribute a hover all you have to do is provide a function
+   * that can be called with a [TextDocument](#TextDocument) and a [Position](#Position) returning hover info. The rest, like tracking the
+   * mouse, positioning the hover, keeping the hover stable etc. is taken care of by the editor.
+   *
+   * ```javascript
+   * languages.registerHoverProvider('javascript', {
+   *   provideHover(document, position, token) {
+   *     return new Hover('I am a hover!');
+   *   }
+   * });
+   * ```
+   *
+   * Registration is done using a [document selector](#DocumentSelector) which is either a language id, like `javascript` or
+   * a more complex [filter](#DocumentFilter) like `{ language: 'typescript', scheme: 'file' }`. Matching a document against such
+   * a selector will result in a [score](#languages.match) that is used to determine if and how a provider shall be used. When
+   * scores are equal the provider that came last wins. For features that allow full arity, like [hover](#languages.registerHoverProvider),
+   * the score is only checked to be `>0`, for other features, like [IntelliSense](#languages.registerCompletionItemProvider) the
+   * score is used for determining the order in which providers are asked to participate.
+   */
+  export namespace languages {
+
+    /**
+     * Return the identifiers of all known languages.
+     * @return Promise resolving to an array of identifier strings.
+     */
+    export function getLanguages(): Thenable<string[]>;
+
+    /**
+     * Set (and change) the [language](#TextDocument.languageId) that is associated
+     * with the given document.
+     *
+     * *Note* that calling this function will trigger the [`onDidCloseTextDocument`](#workspace.onDidCloseTextDocument) event
+     * followed by the [`onDidOpenTextDocument`](#workspace.onDidOpenTextDocument) event.
+     *
+     * @param document The document which language is to be changed
+     * @param languageId The new language identifier.
+     * @returns A thenable that resolves with the updated document.
+     */
+    export function setTextDocumentLanguage(document: TextDocument, languageId: string): Thenable<TextDocument>;
+
+    /**
+     * Compute the match between a document [selector](#DocumentSelector) and a document. Values
+     * greater than zero mean the selector matches the document.
+     *
+     * A match is computed according to these rules:
+     * 1. When [`DocumentSelector`](#DocumentSelector) is an array, compute the match for each contained `DocumentFilter` or language identifier and take the maximum value.
+     * 2. A string will be desugared to become the `language`-part of a [`DocumentFilter`](#DocumentFilter), so `"fooLang"` is like `{ language: "fooLang" }`.
+     * 3. A [`DocumentFilter`](#DocumentFilter) will be matched against the document by comparing its parts with the document. The following rules apply:
+     *  1. When the `DocumentFilter` is empty (`{}`) the result is `0`
+     *  2. When `scheme`, `language`, or `pattern` are defined but one doesn’t match, the result is `0`
+     *  3. Matching against `*` gives a score of `5`, matching via equality or via a glob-pattern gives a score of `10`
+     *  4. The result is the maximum value of each match
+     *
+     * Samples:
+     * ```js
+     * // default document from disk (file-scheme)
+     * doc.uri; //'file:///my/file.js'
+     * doc.languageId; // 'javascript'
+     * match('javascript', doc); // 10;
+     * match({language: 'javascript'}, doc); // 10;
+     * match({language: 'javascript', scheme: 'file'}, doc); // 10;
+     * match('*', doc); // 5
+     * match('fooLang', doc); // 0
+     * match(['fooLang', '*'], doc); // 5
+     *
+     * // virtual document, e.g. from git-index
+     * doc.uri; // 'git:/my/file.js'
+     * doc.languageId; // 'javascript'
+     * match('javascript', doc); // 10;
+     * match({language: 'javascript', scheme: 'git'}, doc); // 10;
+     * match('*', doc); // 5
+     * ```
+     *
+     * @param selector A document selector.
+     * @param document A text document.
+     * @return A number `>0` when the selector matches and `0` when the selector does not match.
+     */
+    // TODO
+    // export function match(selector: DocumentSelector, document: TextDocument): number;
+
+    /**
+     * An [event](#Event) which fires when the global set of diagnostics changes. This is
+     * newly added and removed diagnostics.
+     */
+    // export const onDidChangeDiagnostics: Event<DiagnosticChangeEvent>;
+
+    /**
+     * Get all diagnostics for a given resource. *Note* that this includes diagnostics from
+     * all extensions but *not yet* from the task framework.
+     *
+     * @param resource A resource
+     * @returns An array of [diagnostics](#Diagnostic) objects or an empty array.
+     */
+    // TODO
+    // export function getDiagnostics(resource: Uri): Diagnostic[];
+
+    /**
+     * Get all diagnostics. *Note* that this includes diagnostics from
+     * all extensions but *not yet* from the task framework.
+     *
+     * @returns An array of uri-diagnostics tuples or an empty array.
+     */
+    // TODO
+    // export function getDiagnostics(): [Uri, Diagnostic[]][];
+
+    /**
+     * Create a diagnostics collection.
+     *
+     * @param name The [name](#DiagnosticCollection.name) of the collection.
+     * @return A new diagnostic collection.
+     */
+    // TODO
+    // export function createDiagnosticCollection(name?: string): DiagnosticCollection;
+
+    /**
+     * Register a completion provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and groups of equal score are sequentially asked for
+     * completion items. The process stops when one or many providers of a group return a
+     * result. A failing provider (rejected promise or exception) will not fail the whole
+     * operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A completion provider.
+     * @param triggerCharacters Trigger completion when the user types one of the characters, like `.` or `:`.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerCompletionItemProvider(selector: DocumentSelector, provider: CompletionItemProvider, ...triggerCharacters: string[]): Disposable;
+
+    /**
+     * Register a code action provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A code action provider.
+     * @param metadata Metadata about the kind of code actions the provider providers.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerCodeActionsProvider(selector: DocumentSelector, provider: CodeActionProvider, metadata?: CodeActionProviderMetadata): Disposable;
+
+    /**
+     * Register a code lens provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A code lens provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerCodeLensProvider(selector: DocumentSelector, provider: CodeLensProvider): Disposable;
+
+    /**
+     * Register a definition provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A definition provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDefinitionProvider(selector: DocumentSelector, provider: DefinitionProvider): Disposable;
+
+    /**
+     * Register an implementation provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider An implementation provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerImplementationProvider(selector: DocumentSelector, provider: ImplementationProvider): Disposable;
+
+    /**
+     * Register a type definition provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A type definition provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerTypeDefinitionProvider(selector: DocumentSelector, provider: TypeDefinitionProvider): Disposable;
+
+    /**
+     * Register a declaration provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A declaration provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDeclarationProvider(selector: DocumentSelector, provider: DeclarationProvider): Disposable;
+
+    /**
+     * Register a hover provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A hover provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerHoverProvider(selector: DocumentSelector, provider: HoverProvider): Disposable;
+
+    /**
+     * Register a document highlight provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and groups sequentially asked for document highlights.
+     * The process stops when a provider returns a `non-falsy` or `non-failure` result.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A document highlight provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDocumentHighlightProvider(selector: DocumentSelector, provider: DocumentHighlightProvider): Disposable;
+
+    /**
+     * Register a document symbol provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A document symbol provider.
+     * @param metaData metadata about the provider
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDocumentSymbolProvider(selector: DocumentSelector, provider: DocumentSymbolProvider, metaData?: DocumentSymbolProviderMetadata): Disposable;
+
+    /**
+     * Register a workspace symbol provider.
+     *
+     * Multiple providers can be registered. In that case providers are asked in parallel and
+     * the results are merged. A failing provider (rejected promise or exception) will not cause
+     * a failure of the whole operation.
+     *
+     * @param provider A workspace symbol provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerWorkspaceSymbolProvider(provider: WorkspaceSymbolProvider): Disposable;
+
+    /**
+     * Register a reference provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A reference provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerReferenceProvider(selector: DocumentSelector, provider: ReferenceProvider): Disposable;
+
+    /**
+     * Register a rename provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and the best-matching provider is used. Failure
+     * of the selected provider will cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A rename provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerRenameProvider(selector: DocumentSelector, provider: RenameProvider): Disposable;
+
+    /**
+     * Register a formatting provider for a document.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and the best-matching provider is used. Failure
+     * of the selected provider will cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A document formatting edit provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDocumentFormattingEditProvider(selector: DocumentSelector, provider: DocumentFormattingEditProvider): Disposable;
+
+    /**
+     * Register a formatting provider for a document range.
+     *
+     * *Note:* A document range provider is also a [document formatter](#DocumentFormattingEditProvider)
+     * which means there is no need to [register](#languages.registerDocumentFormattingEditProvider) a document
+     * formatter when also registering a range provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and the best-matching provider is used. Failure
+     * of the selected provider will cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A document range formatting edit provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDocumentRangeFormattingEditProvider(selector: DocumentSelector, provider: DocumentRangeFormattingEditProvider): Disposable;
+
+    /**
+     * Register a formatting provider that works on type. The provider is active when the user enables the setting `editor.formatOnType`.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and the best-matching provider is used. Failure
+     * of the selected provider will cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider An on type formatting edit provider.
+     * @param firstTriggerCharacter A character on which formatting should be triggered, like `}`.
+     * @param moreTriggerCharacter More trigger characters.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerOnTypeFormattingEditProvider(selector: DocumentSelector, provider: OnTypeFormattingEditProvider, firstTriggerCharacter: string, ...moreTriggerCharacter: string[]): Disposable;
+
+    /**
+     * Register a signature help provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are sorted
+     * by their [score](#languages.match) and called sequentially until a provider returns a
+     * valid result.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A signature help provider.
+     * @param triggerCharacters Trigger signature help when the user types one of the characters, like `,` or `(`.
+     * @param metadata Information about the provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerSignatureHelpProvider(selector: DocumentSelector, provider: SignatureHelpProvider, ...triggerCharacters: string[]): Disposable;
+    // export function registerSignatureHelpProvider(selector: DocumentSelector, provider: SignatureHelpProvider, metadata: SignatureHelpProviderMetadata): Disposable;
+
+    /**
+     * Register a document link provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A document link provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerDocumentLinkProvider(selector: DocumentSelector, provider: DocumentLinkProvider): Disposable;
+
+    /**
+     * Register a color provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged. A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A color provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerColorProvider(selector: DocumentSelector, provider: DocumentColorProvider): Disposable;
+
+    /**
+     * Register a folding range provider.
+     *
+     * Multiple providers can be registered for a language. In that case providers are asked in
+     * parallel and the results are merged.
+     * If multiple folding ranges start at the same position, only the range of the first registered provider is used.
+     * If a folding range overlaps with an other range that has a smaller position, it is also ignored.
+     *
+     * A failing provider (rejected promise or exception) will
+     * not cause a failure of the whole operation.
+     *
+     * @param selector A selector that defines the documents this provider is applicable to.
+     * @param provider A folding range provider.
+     * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
+     */
+    // TODO
+    // export function registerFoldingRangeProvider(selector: DocumentSelector, provider: FoldingRangeProvider): Disposable;
+
+    /**
+     * Set a [language configuration](#LanguageConfiguration) for a language.
+     *
+     * @param language A language identifier like `typescript`.
+     * @param configuration Language configuration.
+     * @return A [disposable](#Disposable) that unsets this configuration.
+     */
+    export function setLanguageConfiguration(language: string, configuration: LanguageConfiguration): Disposable;
   }
 
   /**
@@ -1452,6 +2322,62 @@ declare module 'razorback' {
      * @return Thenable that resolves to a list of command ids.
      */
     export function getCommands(filterInternal?: boolean): Thenable<string[]>;
+  }
+
+  /**
+   * Namespace for dealing with installed extensions. Extensions are represented
+   * by an [extension](#Extension)-interface which enables reflection on them.
+   *
+   * Extension writers can provide APIs to other extensions by returning their API public
+   * surface from the `activate`-call.
+   *
+   * ```javascript
+   * export function activate(context: vscode.ExtensionContext) {
+   *   let api = {
+   *     sum(a, b) {
+   *       return a + b;
+   *     },
+   *     mul(a, b) {
+   *       return a * b;
+   *     }
+   *   };
+   *   // 'export' public api-surface
+   *   return api;
+   * }
+   * ```
+   * When depending on the API of another extension add an `extensionDependency`-entry
+   * to `package.json`, and use the [getExtension](#extensions.getExtension)-function
+   * and the [exports](#Extension.exports)-property, like below:
+   *
+   * ```javascript
+   * let mathExt = extensions.getExtension('genius.math');
+   * let importedApi = mathExt.exports;
+   *
+   * console.log(importedApi.mul(42, 1));
+   * ```
+   */
+  export namespace extensions {
+
+    /**
+     * Get an extension by its full identifier in the form of: `publisher.name`.
+     *
+     * @param extensionId An extension identifier.
+     * @return An extension or `undefined`.
+     */
+    export function getExtension(extensionId: string): Extension<any> | undefined;
+
+    /**
+     * Get an extension its full identifier in the form of: `publisher.name`.
+     *
+     * @param extensionId An extension identifier.
+     * @return An extension or `undefined`.
+     */
+    export function getExtension<T>(extensionId: string): Extension<T> | undefined;
+
+    /**
+     * All extensions currently known to the system.
+     */
+    export let all: Extension<any>[];
   }
 
   export namespace window {

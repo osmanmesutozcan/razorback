@@ -144,7 +144,7 @@ export class ExtHostCommands implements ExtHostCommandsShape {
     this._logger.trace('ExtHostCommands#getCommands', filterUnderscoreCommands);
     const commands = await this._proxy.$getCommands();
     return commands.filter((command: string) =>
-      (filterUnderscoreCommands && command[0] !== '_'));
+      (!(filterUnderscoreCommands && command[0] === '_')));
   }
 
   async $getContributedCommandHandlerDescriptions(
