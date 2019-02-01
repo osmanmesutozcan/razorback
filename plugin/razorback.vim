@@ -18,7 +18,11 @@ endfunction
 
 " Register autocmds to notify server on certain events.
 " To read documentation `:help {AutoCmd}`
-function! s:Hook()
+function! s:Initialize()
+  runtime lib/sider.vim
+  runtime lib/components/null.vim
+  runtime lib/components/treeview.vim
+
   augroup razorback
     autocmd VimEnter     * call s:Notify('RazorbackAutocmd', ['VimEnter'])
     autocmd FocusGained  * call s:Notify('RazorbackAutocmd', ['FocusGained'])
@@ -51,9 +55,20 @@ endfunction
 
 " TODO: this command should be triggered from palette like ui.
 command! -nargs=* RazorbackCommand :call s:Notify('RazorbackCommand', ['run', <f-args>])
-
 " Setup keybindings. TODO: Move this to readme
-nmap <leader>rr :RazorbackCommand 
+nmap <leader>rr :RazorbackCommand
 
 " Do the thing.
-call s:Hook()
+call s:Initialize()
+
+" XXX: temp
+let g:RazorbackSiderPosition = 'right' " One of [left right]
+let g:RazorbackSiderSize = 32          " Width in numbers
+
+function! s:Toggle()
+  call razorback#ui#test_fn()
+endfunction
+
+command! -nargs=0 RazorbackUI :call s:Toggle()
+map <C-f> :RazorbackUI<CR>
+
