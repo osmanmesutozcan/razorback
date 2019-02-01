@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { inject } from 'inversify';
 import { EventEmitter, Event } from '../base/event';
@@ -7,6 +9,10 @@ import { CoreWorkspaceComponent } from '../workspace/component';
 import { CoreBindings as CoreProtocolBindings } from '../api/protocol';
 import { FileSystemEvents } from './types';
 import { URI } from '../base/uri';
+import { createLogger } from '../logger';
+import { parseGitIgnore } from '../base/fs';
+
+const logger = createLogger('raorback#fswatcher');
 
 export class CoreFileSystemWatcherComponent {
   private readonly $_onFileEvent = new EventEmitter<FileSystemEvents>();
@@ -23,7 +29,8 @@ export class CoreFileSystemWatcherComponent {
       .get<CoreWorkspaceComponent>(CoreProtocolBindings.CoreWorkspaceComponent);
 
     const directories = this._getRootdirectories();
-    this._watcher = chokidar.watch(directories);
+    const ignored = this._getRootIgnores(directories);
+    this._watcher = chokidar.watch(directories, { ignored });
 
     this._watcher.on('all', (event, path) => {
       const fileEvent: FileSystemEvents = {
@@ -31,6 +38,8 @@ export class CoreFileSystemWatcherComponent {
         changed: [],
         deleted: [],
       };
+
+      logger.debug(event, path);
 
       // File events
       if (event === 'add') {
@@ -53,7 +62,7 @@ export class CoreFileSystemWatcherComponent {
     });
   }
 
-  private _getRootdirectories(): string[]  {
+  private _getRootdirectories(): string[] {
     const directories = this._coreWorkspaceComponent.workspaceFolders;
 
     if (directories) {
@@ -63,5 +72,24 @@ export class CoreFileSystemWatcherComponent {
     // TODO handle unsaved buffer.
     // for now whereever we start vim from.
     return ['.'];
+  }
+
+  private _getRootIgnores(directories: string[]): string[] {
+    const ignores = directories
+      .map(d => path.resolve(d, '.gitignore'))
+      .filter(d => d !== undefined)
+      .reduce(
+        (acc: string[], f: string) => {
+          if (fs.existsSync(f)) {
+            return acc.concat(parseGitIgnore((f)).patterns);
+          }
+
+          return acc;
+        },
+        <string[]>[]);
+
+    ignores.push('.git');
+
+    return ignores;
   }
 }
