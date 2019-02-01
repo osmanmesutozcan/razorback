@@ -20,6 +20,7 @@ endfunction
 " To read documentation `:help {AutoCmd}`
 function! s:Initialize()
   runtime lib/sider.vim
+  runtime lib/dropdown.vim
   runtime lib/components/null.vim
   runtime lib/components/treeview.vim
 
@@ -62,13 +63,20 @@ nmap <leader>rr :RazorbackCommand
 call s:Initialize()
 
 " XXX: temp
-let g:RazorbackSiderPosition = 'right' " One of [left right]
-let g:RazorbackSiderSize = 32          " Width in numbers
+let g:RazorbackSiderPosition = 'right'     " One of [left right]
+let g:RazorbackSiderSize = 32              " Width in numbers
+let g:RazorbackDropdownPosition = 'bottom' " One of [top bottom]
+let g:RazorbackDropdownSize = 10           " Height in numbers
 
-function! s:Toggle()
-  call razorback#ui#test_fn()
+function! s:ToggleUI(type)
+  if a:type ==# 'dd'
+    call razorback#ui#test_dropdown()
+  else
+    call razorback#ui#test_sider()
+  endif
 endfunction
 
-command! -nargs=0 RazorbackUI :call s:Toggle()
-map <C-f> :RazorbackUI<CR>
+command! -nargs=1 RazorbackUI :call s:ToggleUI(<f-args>)
+nmap <leader>rs :RazorbackUI s<CR>
+nmap <leader>re :RazorbackUI dd<CR>
 
