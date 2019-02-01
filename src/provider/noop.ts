@@ -1,5 +1,5 @@
 import * as rback from 'razorback';
-import { Disposable } from '../api/types';
+import { Disposable } from '../base/lifecycle';
 import { createLogger } from '../logger';
 
 const logger = createLogger('razorback#provider#noopProvider');

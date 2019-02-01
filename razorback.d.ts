@@ -1133,8 +1133,7 @@ declare module 'razorback' {
     /**
      * An event that is emitted when a workspace folder is added or removed.
      */
-    // TODO:
-    // export const onDidChangeWorkspaceFolders: Event<WorkspaceFoldersChangeEvent>;
+    export const onDidChangeWorkspaceFolders: Event<WorkspaceFoldersChangeEvent>;
 
     /**
      * Returns the [workspace folder](#WorkspaceFolder) that contains a given uri.
@@ -1221,8 +1220,7 @@ declare module 'razorback' {
      * @param ignoreDeleteEvents Ignore when files have been deleted.
      * @return A new file system watcher instance.
      */
-    // TODO:
-    // export function createFileSystemWatcher(globPattern: GlobPattern, ignoreCreateEvents?: boolean, ignoreChangeEvents?: boolean, ignoreDeleteEvents?: boolean): FileSystemWatcher;
+    export function createFileSystemWatcher(globPattern: GlobPattern, ignoreCreateEvents?: boolean, ignoreChangeEvents?: boolean, ignoreDeleteEvents?: boolean): FileSystemWatcher;
 
     /**
      * Find files across all [workspace folders](#workspace.workspaceFolders) in the workspace.
@@ -2185,7 +2183,7 @@ declare module 'razorback' {
      * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
      */
     // TODO
-    // export function registerDocumentLinkProvider(selector: DocumentSelector, provider: DocumentLinkProvider): Disposable;
+    export function registerDocumentLinkProvider(selector: DocumentSelector, provider: any): Disposable;
 
     /**
      * Register a color provider.

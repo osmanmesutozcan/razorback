@@ -1,6 +1,12 @@
 import * as rback from 'razorback';
+import { EventEmitter, Event } from '../base/event';
 
 export class CoreWorkspaceComponent {
+
+  private readonly $_onDidChangeWorkspaceFolders =
+    new EventEmitter<rback.WorkspaceFoldersChangeEvent>();
+  readonly $onDidChangeWorkspaceFolders = this.$_onDidChangeWorkspaceFolders.event;
+
   // FIXME: This is deprecated on vscode. Need to check
   // how to properly deprecate stuff.
   private _rootPath: string | undefined = undefined;

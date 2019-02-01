@@ -62,6 +62,7 @@ export const ExtHostBindings = {
   ExtHostMessageService: Symbol.for('razorback.ext.messageservice'),
   ExtHostConfiguration: Symbol.for('razorback.ext.configuration'),
   ExtHostExtensions: Symbol.for('razorback.ext.extensions'),
+  ExtHostFileSystemEvents: Symbol.for('razorback.ext.fsevents'),
 };
 
 export interface ExtHostCommandsShape {
@@ -93,6 +94,7 @@ export const CoreBindings = {
   CoreDocumentsComponent: Symbol.for('razorback.core.documents'),
   CoreLanguagesComponent: Symbol.for('razorback.core.languages'),
   CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
+  CoreFileSystemWatcherComponent: Symbol.for('razorback.core.fsevents'),
 };
 
 export interface CoreCommandsShape extends IDisposable {

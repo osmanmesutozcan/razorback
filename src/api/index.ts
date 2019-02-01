@@ -3,11 +3,14 @@
 import * as rback from 'razorback';
 import * as error from '../error';
 import * as languagesTypes from '../languages/types';
+import { CoreContext } from '../core/core';
 import { URI } from '../base/uri';
 import Severity from '../base/severity';
-import { CoreContext } from '../core/core';
+import { Disposable } from '../base/lifecycle';
 import { EventEmitter } from '../base/event';
+import { CancellationTokenSource } from '../base/cancellation';
 import { IExtensionDescription } from '../extension/types';
+import { noopProvider } from '../provider/noop';
 
 import * as apiTypes from './types';
 import { ExtHostBindings } from './protocol';
@@ -16,10 +19,9 @@ import { ExtHostMessageService } from './message';
 import { ExtHostWorkspace } from './workspace';
 import { ExtHostDocuments } from './documents';
 import { ExtHostLanguages } from './languages';
-import { CancellationTokenSource } from '../base/cancellation';
 import { ExtHostConfiguration } from './configuration';
-import { noopProvider } from '../provider/noop';
 import { ExtHostExtensions } from './extensions';
+import { ExtHostFileSystemEvents } from './fsevents';
 
 export function createApiFactory(coreContext: CoreContext) {
   // Register extention host classes to core.
@@ -32,6 +34,7 @@ export function createApiFactory(coreContext: CoreContext) {
   const extHostLanguages = coreContext.constant(ExtHostBindings.ExtHostLanguages, new ExtHostLanguages(coreContext));
   const extHostConfiguration = coreContext.constant(ExtHostBindings.ExtHostConfiguration, new ExtHostConfiguration());
   const extHostExtensions = coreContext.constant(ExtHostBindings.ExtHostExtensions, new ExtHostExtensions());
+  const extHostFileSystemEvents = coreContext.constant(ExtHostBindings.ExtHostFileSystemEvents, new ExtHostFileSystemEvents(coreContext));
 
   // TODO: Make sure each extension gets its own implementation.
 
@@ -52,6 +55,9 @@ export function createApiFactory(coreContext: CoreContext) {
       },
       setLanguageConfiguration: (language: string, configuration: rback.LanguageConfiguration): rback.Disposable => {
         return extHostLanguages.setLanguageConfiguration(language, configuration);
+      },
+      registerDocumentLinkProvider(selector, provider) {
+        return noopProvider('languages.registerDocumentLinkProvider', selector, provider);
       },
     };
 
@@ -101,6 +107,12 @@ export function createApiFactory(coreContext: CoreContext) {
       onDidSaveTextDocument: (listener, thisArgs?, disposables?) => {
         return extHostDocuments.onDidSaveTextDocument(listener, thisArgs, disposables);
       },
+      onDidChangeWorkspaceFolders: (listeners, thisArgs?, disposables?) => {
+        return extHostWorkspace.onDidChangeWorkspaceFolders(listeners, thisArgs, disposables);
+      },
+      createFileSystemWatcher(globPattern, ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents) {
+        return extHostFileSystemEvents.createFileSystemWatcher(globPattern, ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents);
+      },
       // NOOP --
       get rootPath() {
         return extHostWorkspace.rootPath;
@@ -147,10 +159,10 @@ export function createApiFactory(coreContext: CoreContext) {
       extensions,
 
       CancellationTokenSource,
+      Disposable,
       EventEmitter,
       ConfigurationTarget: apiTypes.ConfigurationTarget,
       CodeLens: apiTypes.CodeLens,
-      Disposable: apiTypes.Disposable,
       EndOfLine: apiTypes.EndOfLine,
       IndentAction: languagesTypes.IndentAction,
       Position: apiTypes.Position,

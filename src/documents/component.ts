@@ -52,7 +52,7 @@ export class CoreDocumentsComponent {
   private async ensureDocument(id: BufferNumber): Promise<TextDocument> {
     if (!this._documents.has(id)) {
       // First thing is to set a document placeholder
-      // to prevent race conditions. We dont want listeners
+      // to preven race conditions. We dont want listeners
       // to be registered multiple times.
       process.nextTick(() => this._documents.set(id, undefined));
 
@@ -70,7 +70,8 @@ export class CoreDocumentsComponent {
    * Fired when entered a new buffer.
    */
   private async handleDidOpenTextDocument(id: BufferNumber) {
-    await this.ensureDocument(id);
+    const document = await this.ensureDocument(id);
+    this.$_onDidOpenTextDocument.fire(document);
   }
 
   /**

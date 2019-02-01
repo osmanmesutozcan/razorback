@@ -34,7 +34,7 @@ export enum EndOfLine {
 export class TextDocument implements rback.TextDocument, IDisposable {
 
   // TODO:
-  private _uri: URI = URI.file('/tmp/test.txt');
+  private _uri: URI = URI.file('/home/osman/dev/self/Razorback/razorback/src/main.ts');
   get uri(): URI {
     return this._uri;
   }
@@ -55,7 +55,7 @@ export class TextDocument implements rback.TextDocument, IDisposable {
     return this._name;
   }
 
-  private _languageId = '';
+  private _languageId = 'typescript';
   get languageId(): string {
     return this._languageId;
   }

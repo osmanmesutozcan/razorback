@@ -2,14 +2,13 @@ import *  as _ from 'lodash';
 import { Thenable } from 'razorback';
 
 import { createLogger } from '../logger';
-import { ICommandHandlerDescription } from '../commands/types';
 import { revive } from '../base/marshalling';
-import { CoreContext } from '../core/core';
-
-import * as apiTypes from './types';
-import { ExtHostCommandsShape, CoreBindings } from './protocol';
+import { Disposable } from '../base/lifecycle';
 import { validateConstraint } from '../base/types';
+import { CoreContext } from '../core/core';
+import { ICommandHandlerDescription } from '../commands/types';
 import { CoreCommandsComponent } from '../commands/component';
+import { ExtHostCommandsShape, CoreBindings } from './protocol';
 
 interface CommandHandler {
   callback: Function;
@@ -51,7 +50,7 @@ export class ExtHostCommands implements ExtHostCommandsShape {
     callback: <T>(...args: any[]) => T | Thenable<T>,
     thisArg?: any,
     description?: ICommandHandlerDescription,
-  ): apiTypes.Disposable {
+  ): Disposable {
     this._logger.trace('ExtHostCommands#registerCommand', id);
 
     if (!id.trim().length) {
@@ -67,7 +66,7 @@ export class ExtHostCommands implements ExtHostCommandsShape {
       this._proxy.$registerCommand(id);
     }
 
-    return new apiTypes.Disposable(() => {
+    return new Disposable(() => {
       if (this._commands.delete(id)) {
         if (global) {
           this._proxy.$unregisterCommand(id);
