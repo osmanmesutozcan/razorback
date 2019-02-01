@@ -32,7 +32,7 @@ function! s:TW.render()
     call cursor(line(".")+1, col("."))
 
     " draw the tree
-    " silent put =self._render_items
+    silent put =self._render_items
 
     " delete the blank line at the top of the buffer
     silent 1,1delete _
