@@ -1,5 +1,5 @@
 import * as rback from 'razorback';
-import { CoreWorkspaceComponent } from '../workspace/component';
+import { CoreWorkspaceComponent } from '../core/workspace/component';
 import { CoreContext } from '../core/core';
 import { Event, EventEmitter } from '../base/event';
 import { CoreBindings } from './protocol';

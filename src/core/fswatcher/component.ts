@@ -2,17 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { inject } from 'inversify';
-import { EventEmitter, Event } from '../base/event';
-import { CoreBindings } from '../core/types';
-import { CoreContext } from '../core/core';
+import { createLogger } from '../../logger';
+import { EventEmitter, Event } from '../../base/event';
+import { parseGitIgnore } from '../../base/fs';
+import { URI } from '../../base/uri';
+import { CoreBindings } from '../types';
+import { CoreContext } from '../core';
 import { CoreWorkspaceComponent } from '../workspace/component';
-import { CoreBindings as CoreProtocolBindings } from '../api/protocol';
+import { CoreBindings as CoreProtocolBindings } from '../../api/protocol';
 import { FileSystemEvents } from './types';
-import { URI } from '../base/uri';
-import { createLogger } from '../logger';
-import { parseGitIgnore } from '../base/fs';
 
-const logger = createLogger('raorback#fswatcher');
+const logger = createLogger('razorback#fswatcher');
 
 export class CoreFileSystemWatcherComponent {
   private readonly $_onFileEvent = new EventEmitter<FileSystemEvents>();
@@ -39,7 +39,7 @@ export class CoreFileSystemWatcherComponent {
         deleted: [],
       };
 
-      logger.debug(event, path);
+      logger.trace(event, path);
 
       // File events
       if (event === 'add') {

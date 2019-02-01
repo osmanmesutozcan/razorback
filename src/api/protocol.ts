@@ -1,7 +1,7 @@
 // tslint:disable:max-line-length
 
+import { ICommandHandlerDescription } from '../core/commands/types';
 import { UriComponents } from '../base/uri';
-import { ICommandHandlerDescription } from '../commands/types';
 import { IDisposable } from '../base/lifecycle';
 
 export enum TextEditorCursorStyle {

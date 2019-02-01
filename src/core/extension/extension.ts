@@ -1,11 +1,11 @@
-import { createLogger } from '../logger';
+import { createLogger } from '../../logger';
 import { createSandbox } from '../sandbox';
 
 import {
   IExtension,
   IExtensionDescription,
 } from './types';
-import { ICreateApi } from '../api';
+import { ICreateApi } from '../../api';
 
 const logger = createLogger('razorback#extension#extension');
 
@@ -41,7 +41,7 @@ export class Extension {
     // FIXME: Check if default fallback to non-default!
     this.extension =
       sandbox.require(extension.extensionLocation.path);
-      // || sandbox.require(extension.extensionLocation.path);
+    // || sandbox.require(extension.extensionLocation.path);
     logger.debug('extension imported successfully');
 
     // TODO: Generate context.

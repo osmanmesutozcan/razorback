@@ -1,4 +1,4 @@
-import { UriComponents } from '../base/uri';
+import { UriComponents } from '../../base/uri';
 
 export interface FileSystemEvents {
   created: UriComponents[];

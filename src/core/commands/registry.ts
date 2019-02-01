@@ -2,12 +2,12 @@ import * as _ from 'lodash';
 import { Container } from 'inversify';
 import { Event, Emitter } from 'vscode-languageserver-protocol';
 
-import { LinkedList } from '../base/linkedlist';
-import { IDisposable, toDisposable } from '../base/lifecycle';
-import { TypeConstraint, validateConstraints } from '../base/types';
+import { LinkedList } from '../../base/linkedlist';
+import { IDisposable, toDisposable } from '../../base/lifecycle';
+import { TypeConstraint, validateConstraints } from '../../base/types';
+import { createDecorator } from '../instantiation';
+import { IComponent } from '../component';
 import { ICommandHandlerDescription } from './types';
-import { IComponent } from '../core';
-import { createDecorator } from '../core/instantiation';
 
 export interface ICommandHandler {
   (accessor: Container, ...args: any[]): void;

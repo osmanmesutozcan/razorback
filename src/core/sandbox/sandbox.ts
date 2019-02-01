@@ -1,11 +1,10 @@
 import * as vm from 'vm';
 import * as _ from 'lodash';
 import * as path from 'path';
-import { createLogger } from '../logger';
-
-import { ISandbox, IModule } from './types';
+import { createLogger } from '../../logger';
 import { IExtensionDescription } from '../extension/types';
-import { ICreateApi } from '../api';
+import { ICreateApi } from '../../api';
+import { ISandbox, IModule } from './types';
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
@@ -90,11 +89,11 @@ export function createSandbox(
 
   sandbox.process = _.omit<any>(process, REMOVED_GLOBALS);
   REMOVED_GLOBALS.forEach((name: string) => {
-    (sandbox.process as { [name: string]: any})[name] = removedGlobalStub(name);
+    (sandbox.process as { [name: string]: any })[name] = removedGlobalStub(name);
   });
 
   // read-only umask
-  sandbox.process.umask = (mask:number) => {
+  sandbox.process.umask = (mask: number) => {
     if (typeof mask === 'undefined') {
       return process.umask();
     }

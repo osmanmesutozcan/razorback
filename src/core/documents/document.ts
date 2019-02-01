@@ -3,12 +3,12 @@
 import * as _ from 'lodash';
 import * as rback from 'razorback';
 import { NeovimClient, Buffer as NeovimBuffer } from 'neovim';
-import { createLogger } from '../logger';
-import { Range, Position } from '../api/types';
-import { regExpLeadsToEndlessLoop } from '../base/strings';
-import { getWordAtText, ensureValidWordDefinition, PrefixSumComputer } from '../base/model';
-import { URI } from '../base/uri';
-import { IDisposable } from '../base/lifecycle';
+import { createLogger } from '../../logger';
+import { Range, Position } from '../../api/types';
+import { regExpLeadsToEndlessLoop } from '../../base/strings';
+import { getWordAtText, ensureValidWordDefinition, PrefixSumComputer } from '../../base/model';
+import { URI } from '../../base/uri';
+import { IDisposable } from '../../base/lifecycle';
 
 const logger = createLogger('razorback#documents#document');
 
@@ -221,7 +221,7 @@ export class TextDocument implements rback.TextDocument, IDisposable {
     _firstline: number,
     _lastline: number,
     _linedata: string[],
-) {
+  ) {
     this._version += 1;
     // FIXME: This is actually a wrong approach because if file is
     // undoed after change is could be back to clean state again.

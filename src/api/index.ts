@@ -2,15 +2,15 @@
 
 import * as rback from 'razorback';
 import * as error from '../error';
-import * as languagesTypes from '../languages/types';
+import * as languagesTypes from '../core/languages/types';
+import { IExtensionDescription } from '../core/extension/types';
+import { noopProvider } from '../core/provider/noop';
 import { CoreContext } from '../core/core';
 import { URI } from '../base/uri';
 import Severity from '../base/severity';
 import { Disposable } from '../base/lifecycle';
 import { EventEmitter } from '../base/event';
 import { CancellationTokenSource } from '../base/cancellation';
-import { IExtensionDescription } from '../extension/types';
-import { noopProvider } from '../provider/noop';
 
 import * as apiTypes from './types';
 import { ExtHostBindings } from './protocol';

@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify';
-import { IComponent, CoreContext, CoreBindings } from '../core';
-import { createLogger } from '../logger';
-import { CoreCommandsShape, ExtHostBindings } from '../api/protocol';
-import { CommandsRegistry, ICommandService } from './registry';
-import { IDisposable } from '../base/lifecycle';
-import { ExtHostCommands } from '../api/command';
-import { revive } from '../base/marshalling';
+import { IComponent, CoreContext, CoreBindings } from '../';
+import { createLogger } from '../../logger';
+import { CoreCommandsShape, ExtHostBindings } from '../../api/protocol';
+import { CommandsRegistry } from './registry';
+import { IDisposable } from '../../base/lifecycle';
+import { ExtHostCommands } from '../../api/command';
+import { revive } from '../../base/marshalling';
 
 @injectable()
 export class CoreCommandsComponent implements CoreCommandsShape, IComponent, IDisposable {

@@ -1,4 +1,4 @@
-import { TypeConstraint } from '../base/types';
+import { TypeConstraint } from '../../base/types';
 
 export interface ICommandHandlerDescription {
   description: string;

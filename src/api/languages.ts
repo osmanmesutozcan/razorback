@@ -1,7 +1,7 @@
 import * as rback from 'razorback';
 import { CoreContext } from '../core/core';
-import { CoreLanguagesComponent } from '../languages/component';
-import { CoreDocumentsComponent } from '../documents/component';
+import { CoreLanguagesComponent } from '../core/languages/component';
+import { CoreDocumentsComponent } from '../core/documents/component';
 import { CoreBindings } from './protocol';
 import { noop } from './noop';
 

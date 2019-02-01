@@ -5,8 +5,8 @@ import { EventMethods } from './types';
 import { CoreBindings } from '../api/protocol';
 
 // TODO: these should be converted to shapes
-import { CoreCommandsComponent } from '../commands/component';
-import { CoreDocumentsComponent } from '../documents/component';
+import { CoreCommandsComponent } from './commands/component';
+import { CoreDocumentsComponent } from './documents/component';
 
 const logger = createLogger('razorback#sequence');
 
@@ -37,7 +37,7 @@ export class CoreSequence implements ICoreSequence {
         await this.coreCommandsComponent.$executeCommand(id, rest);
       }
 
-    // Auto commands
+      // Auto commands
     } else if (method === EventMethods.RAZORBACK_AUTOCMD) {
       const [action, id, ...rest] = args;
       logger.trace(`action ${action} id ${id} rest ${rest}`);

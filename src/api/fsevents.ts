@@ -1,9 +1,9 @@
 import * as rback from 'razorback';
 import { CoreContext } from '../core';
+import { FileSystemEvents } from '../core/fswatcher/types';
+import { FileSystemWatcher } from '../core/fswatcher/watcher';
+import { CoreFileSystemWatcherComponent } from '../core/fswatcher/component';
 import { EventEmitter, Event } from '../base/event';
-import { FileSystemEvents } from '../fswatcher/types';
-import { FileSystemWatcher } from '../fswatcher/watcher';
-import { CoreFileSystemWatcherComponent } from '../fswatcher/component';
 import { CoreBindings } from './protocol';
 
 export class ExtHostFileSystemEvents {

@@ -1,4 +1,4 @@
-import { URI } from '../base/uri';
+import { URI } from '../../base/uri';
 
 export namespace ExtensionInternalBindings {
   export const DATABASE = 'razorback.extension.database';

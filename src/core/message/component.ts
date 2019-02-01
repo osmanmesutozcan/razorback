@@ -1,7 +1,7 @@
 import { NeovimClient } from 'neovim';
 import { injectable, inject } from 'inversify';
-import { CoreBindings, CoreContext } from '../core';
-import { ClientCommandMappings } from '../core/types';
+import { CoreBindings, CoreContext } from '../';
+import { ClientCommandMappings } from '../types';
 
 @injectable()
 export class CoreMessageComponent {

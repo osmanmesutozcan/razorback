@@ -1,8 +1,8 @@
 import * as rback from 'razorback';
-import { CoreBindings } from './protocol';
 import { CoreContext } from '../core/core';
+import { CoreDocumentsComponent } from '../core/documents/component';
 import { Event, EventEmitter } from '../base/event';
-import { CoreDocumentsComponent } from '../documents/component';
+import { CoreBindings } from './protocol';
 
 // TODO: (maybe?) rename this to buffer ?
 export class ExtHostDocuments {

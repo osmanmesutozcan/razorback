@@ -1,9 +1,9 @@
 import * as rback from 'razorback';
-import { EventEmitter, Event } from '../base/event';
-import { Disposable } from '../base/lifecycle';
+import { URI } from '../../base/uri';
+import { parseSync } from '../../base/glob';
+import { Disposable } from '../../base/lifecycle';
+import { EventEmitter, Event } from '../../base/event';
 import { FileSystemEvents } from './types';
-import { URI } from '../base/uri';
-import { parseSync } from '../base/glob';
 
 // TODO: have message service to show these erorrs to user, so they can
 // fix stuff if they need to.

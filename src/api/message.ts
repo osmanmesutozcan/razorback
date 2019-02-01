@@ -2,9 +2,9 @@
 
 import * as rback from 'razorback';
 import Severity from '../base/severity';
-import { IExtensionDescription } from '../extension/types';
-import { CoreMessageComponent } from '../message/component';
-import { CoreMessageOptions } from '../message/types';
+import { IExtensionDescription } from '../core/extension/types';
+import { CoreMessageComponent } from '../core/message/component';
+import { CoreMessageOptions } from '../core/message/types';
 import { CoreContext } from '../core/core';
 import { CoreBindings } from './protocol';
 

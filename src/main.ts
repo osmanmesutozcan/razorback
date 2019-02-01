@@ -10,13 +10,13 @@ import { createLogger } from './logger';
 import { CoreBindings } from './api/protocol';
 import { CoreSequence } from './core/sequence';
 import { CoreContext, ICoreOptions } from './core';
-import { ExtensionsComponent } from './extension/component';
-import { CoreCommandsComponent } from './commands/component';
-import { CoreMessageComponent } from './message/component';
-import { CoreWorkspaceComponent } from './workspace/component';
-import { CoreDocumentsComponent } from './documents/component';
-import { CoreLanguagesComponent } from './languages/component';
-import { CoreFileSystemWatcherComponent } from './fswatcher/component';
+import { ExtensionsComponent } from './core/extension/component';
+import { CoreCommandsComponent } from './core/commands/component';
+import { CoreDocumentsComponent } from './core/documents/component';
+import { CoreFileSystemWatcherComponent } from './core/fswatcher/component';
+import { CoreMessageComponent } from './core/message/component';
+import { CoreWorkspaceComponent } from './core/workspace/component';
+import { CoreLanguagesComponent } from './core/languages/component';
 
 const logger = createLogger('razorback#main');
 

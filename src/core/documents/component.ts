@@ -1,9 +1,9 @@
 import * as rback from 'razorback';
 import { inject } from 'inversify';
 import { NeovimClient } from 'neovim';
-import { Event, EventEmitter } from '../base/event';
-import { CoreBindings } from '../core/types';
-import { createLogger } from '../logger';
+import { CoreBindings } from '../types';
+import { createLogger } from '../../logger';
+import { Event, EventEmitter } from '../../base/event';
 import { TextDocument } from './document';
 
 const logger = createLogger('razorback#documents');

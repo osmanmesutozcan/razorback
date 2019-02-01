@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { inject } from 'inversify';
-import { createLogger } from '../logger';
-import { IComponent, CoreBindings, CoreContext } from '../core';
+import { createLogger } from '../../logger';
+import { IComponent, CoreBindings, CoreContext } from '../';
 
 import { Extension } from './extension';
 import { ExtensionDatabase } from './database';
@@ -11,8 +11,8 @@ import {
   ExtensionInternalBindings,
   IExtensionDescription,
 } from './types';
-import { URI } from '../base/uri';
-import { ICreateApi, createApiFactory } from '../api';
+import { URI } from '../../base/uri';
+import { ICreateApi, createApiFactory } from '../../api';
 
 const logger = createLogger('razorback#extension#component');
 

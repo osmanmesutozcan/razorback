@@ -6,8 +6,8 @@ import { revive } from '../base/marshalling';
 import { Disposable } from '../base/lifecycle';
 import { validateConstraint } from '../base/types';
 import { CoreContext } from '../core/core';
-import { ICommandHandlerDescription } from '../commands/types';
-import { CoreCommandsComponent } from '../commands/component';
+import { ICommandHandlerDescription } from '../core/commands/types';
+import { CoreCommandsComponent } from '../core/commands/component';
 import { ExtHostCommandsShape, CoreBindings } from './protocol';
 
 interface CommandHandler {

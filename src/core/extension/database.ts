@@ -5,7 +5,7 @@ import * as lowdb from 'lowdb';
 import * as FileSync from 'lowdb/adapters/FileSync';
 import { inject, injectable } from 'inversify';
 
-import { CoreBindings } from '../core';
+import { CoreBindings } from '../';
 import { ExtensionNotFoundError } from './error';
 import { DatabaseSchema, IExtensionModel } from './types';
 
