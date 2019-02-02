@@ -1,3 +1,8 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 import { Iterator, IteratorResult, FIN } from './iterator';
 
 class Node<E> {
@@ -27,18 +32,17 @@ export class LinkedList<E> {
   clear(): void {
     this._first = undefined;
     this._last = undefined;
-    this._size = 0;
   }
 
-  unshift(element: E): () => void {
-    return this._insert(element, false);
+  unshift(element: E) {
+    return this.insert(element, false);
   }
 
-  push(element: E): () => void {
-    return this._insert(element, true);
+  push(element: E) {
+    return this.insert(element, true);
   }
 
-  private _insert(element: E, atTheEnd: boolean): () => void {
+  private insert(element: E, atTheEnd: boolean) {
     const newNode = new Node(element);
     if (!this._first) {
       this._first = newNode;
@@ -59,63 +63,41 @@ export class LinkedList<E> {
       oldFirst.prev = newNode;
     }
     this._size += 1;
-    return this._remove.bind(this, newNode);
-  }
 
+    return () => {
+      let candidate: Node<E> | undefined = this._first;
+      while (candidate instanceof Node) {
+        if (candidate !== newNode) {
+          candidate = candidate.next;
+          continue;
+        }
+        if (candidate.prev && candidate.next) {
+          // middle
+          let anchor = candidate.prev;
+          anchor.next = candidate.next;
+          candidate.next.prev = anchor;
 
-  shift(): E | undefined {
-    if (!this._first) {
-      return undefined;
-    } else {
-      const res = this._first.element;
-      this._remove(this._first);
-      return res;
-    }
-  }
+        } else if (!candidate.prev && !candidate.next) {
+          // only node
+          this._first = undefined;
+          this._last = undefined;
 
-  pop(): E | undefined {
-    if (!this._last) {
-      return undefined;
-    } else {
-      const res = this._last.element;
-      this._remove(this._last);
-      return res;
-    }
-  }
+        } else if (!candidate.next) {
+          // last
+          this._last = this._last!.prev!;
+          this._last.next = undefined;
 
-  private _remove(node: Node<E>): void {
-    let candidate: Node<E> | undefined = this._first;
-    while (candidate instanceof Node) {
-      if (candidate !== node) {
-        candidate = candidate.next;
-        continue;
+        } else if (!candidate.prev) {
+          // first
+          this._first = this._first!.next!;
+          this._first.prev = undefined;
+        }
+
+        // done
+        this._size -= 1;
+        break;
       }
-      if (candidate.prev && candidate.next) {
-        // middle
-        let anchor = candidate.prev;
-        anchor.next = candidate.next;
-        candidate.next.prev = anchor;
-
-      } else if (!candidate.prev && !candidate.next) {
-        // only node
-        this._first = undefined;
-        this._last = undefined;
-
-      } else if (!candidate.next) {
-        // last
-        this._last = this._last!.prev!;
-        this._last.next = undefined;
-
-      } else if (!candidate.prev) {
-        // first
-        this._first = this._first!.next!;
-        this._first.prev = undefined;
-      }
-
-      // done
-      this._size -= 1;
-      break;
-    }
+    };
   }
 
   iterator(): Iterator<E> {

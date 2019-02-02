@@ -3,7 +3,7 @@ import { inject } from 'inversify';
 import { NeovimClient } from 'neovim';
 import { CoreBindings } from '../types';
 import { createLogger } from '../../logger';
-import { Event, EventEmitter } from '../../base/event';
+import { Event, Emitter } from '../../base/event';
 import { TextDocument } from './document';
 
 const logger = createLogger('razorback#documents');
@@ -12,14 +12,14 @@ export type BufferNumber = number;
 
 export class CoreDocumentsComponent {
 
-  readonly $_onDidOpenTextDocument = new EventEmitter<rback.TextDocument>();
-  readonly $_onDidCloseTextDocument = new EventEmitter<rback.TextDocument>();
-  readonly $_onDidSaveTextDocument = new EventEmitter<rback.TextDocument>();
+  readonly $_onDidOpenTextDocument = new Emitter<rback.TextDocument>();
+  readonly $_onDidCloseTextDocument = new Emitter<rback.TextDocument>();
+  readonly $_onDidSaveTextDocument = new Emitter<rback.TextDocument>();
 
-  readonly _onWillSaveTextDocument = new EventEmitter<BufferNumber>();
-  readonly _onDidOpenTextDocument = new EventEmitter<BufferNumber>();
-  readonly _onDidSaveTextDocument = new EventEmitter<BufferNumber>();
-  readonly _onDidCloseTextDocument = new EventEmitter<BufferNumber>();
+  readonly _onWillSaveTextDocument = new Emitter<BufferNumber>();
+  readonly _onDidOpenTextDocument = new Emitter<BufferNumber>();
+  readonly _onDidSaveTextDocument = new Emitter<BufferNumber>();
+  readonly _onDidCloseTextDocument = new Emitter<BufferNumber>();
 
   readonly $onDidOpenTextDocument: Event<rback.TextDocument> = this.$_onDidOpenTextDocument.event;
   readonly $onDidCloseTextDocument: Event<rback.TextDocument> = this.$_onDidCloseTextDocument.event;

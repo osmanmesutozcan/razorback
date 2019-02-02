@@ -1,3 +1,8 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 export interface IJSONSchema {
   id?: string;
   $id?: string;
@@ -66,7 +71,5 @@ export interface IJSONSchemaSnippet {
   label?: string;
   description?: string;
   body?: any; // a object that will be JSON stringified
-  // an already stringified JSON object that can
-  // contain new lines (\n) and tabs (\t)
-  bodyText?: string;
+  bodyText?: string; // an already stringified JSON object that can contain new lines (\n) and tabs (\t)
 }

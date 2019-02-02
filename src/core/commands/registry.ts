@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import { Container } from 'inversify';
 import { Event, Emitter } from 'vscode-languageserver-protocol';
 
-import { LinkedList } from '../../base/linkedlist';
+import { LinkedList } from '../../base/linkedList';
 import { IDisposable, toDisposable } from '../../base/lifecycle';
 import { TypeConstraint, validateConstraints } from '../../base/types';
 import { createDecorator } from '../instantiation';

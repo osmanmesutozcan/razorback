@@ -9,10 +9,11 @@ import { CoreContext } from '../core/core';
 import { URI } from '../base/uri';
 import Severity from '../base/severity';
 import { Disposable } from '../base/lifecycle';
-import { EventEmitter } from '../base/event';
+import { Emitter } from '../base/event';
 import { CancellationTokenSource } from '../base/cancellation';
 
 import * as apiTypes from './types';
+import * as typeConverters from './typeconverters';
 import { ExtHostBindings } from './protocol';
 import { ExtHostCommands } from './command';
 import { ExtHostMessageService } from './message';
@@ -111,7 +112,7 @@ export function createApiFactory(coreContext: CoreContext) {
         return extHostWorkspace.onDidChangeWorkspaceFolders(listeners, thisArgs, disposables);
       },
       createFileSystemWatcher(globPattern, ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents) {
-        return extHostFileSystemEvents.createFileSystemWatcher(globPattern, ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents);
+        return extHostFileSystemEvents.createFileSystemWatcher(typeConverters.GlobPattern.from(globPattern), ignoreCreateEvents, ignoreChangeEvents, ignoreDeleteEvents);
       },
       // NOOP --
       get rootPath() {
@@ -159,8 +160,8 @@ export function createApiFactory(coreContext: CoreContext) {
       extensions,
 
       CancellationTokenSource,
-      Disposable,
-      EventEmitter,
+      Disposable: apiTypes.Disposable,
+      EventEmitter: Emitter,
       ConfigurationTarget: apiTypes.ConfigurationTarget,
       CodeLens: apiTypes.CodeLens,
       EndOfLine: apiTypes.EndOfLine,

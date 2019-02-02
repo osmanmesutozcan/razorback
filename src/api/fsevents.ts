@@ -3,11 +3,12 @@ import { CoreContext } from '../core';
 import { FileSystemEvents } from '../core/fswatcher/types';
 import { FileSystemWatcher } from '../core/fswatcher/watcher';
 import { CoreFileSystemWatcherComponent } from '../core/fswatcher/component';
-import { EventEmitter, Event } from '../base/event';
+import { Emitter, Event } from '../base/event';
+import { IRelativePattern } from '../base/glob';
 import { CoreBindings } from './protocol';
 
 export class ExtHostFileSystemEvents {
-  private readonly _onFileEvent = new EventEmitter<FileSystemEvents>();
+  private readonly _onFileEvent = new Emitter<FileSystemEvents>();
   readonly onFileEvent: Event<FileSystemEvents> = this._onFileEvent.event;
 
   constructor(coreContext: CoreContext) {
@@ -20,7 +21,7 @@ export class ExtHostFileSystemEvents {
   }
 
   createFileSystemWatcher(
-    globPattern: string | rback.RelativePattern,
+    globPattern: string | IRelativePattern,
     ignoreCreateEvents?: boolean,
     ignoreChangeEvents?: boolean,
     ignoreDeleteEvents?: boolean,

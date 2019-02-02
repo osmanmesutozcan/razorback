@@ -3,11 +3,11 @@ import { Thenable } from 'razorback';
 
 import { createLogger } from '../logger';
 import { revive } from '../base/marshalling';
-import { Disposable } from '../base/lifecycle';
 import { validateConstraint } from '../base/types';
 import { CoreContext } from '../core/core';
 import { ICommandHandlerDescription } from '../core/commands/types';
 import { CoreCommandsComponent } from '../core/commands/component';
+import { Disposable } from './types';
 import { ExtHostCommandsShape, CoreBindings } from './protocol';
 
 interface CommandHandler {

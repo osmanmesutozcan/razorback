@@ -1,3 +1,8 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 export interface IteratorDefinedResult<T> {
   readonly done: false;
   readonly value: T;
@@ -17,7 +22,7 @@ export module Iterator {
   const _empty: Iterator<any> = {
     next() {
       return FIN;
-    },
+    }
   };
 
   export function empty<T>(): Iterator<T> {
@@ -39,12 +44,11 @@ export module Iterator {
   export function from<T>(elements: Iterator<T> | T[] | undefined): Iterator<T> {
     if (!elements) {
       return Iterator.empty();
-    }
-    if (Array.isArray(elements)) {
+    } else if (Array.isArray(elements)) {
       return Iterator.fromArray(elements);
+    } else {
+      return elements;
     }
-
-    return elements;
   }
 
   export function map<T, R>(iterator: Iterator<T>, fn: (t: T) => R): Iterator<R> {
@@ -53,10 +57,10 @@ export module Iterator {
         const element = iterator.next();
         if (element.done) {
           return FIN;
+        } else {
+          return { done: false, value: fn(element.value) };
         }
-
-        return { done: false, value: fn(element.value) };
-      },
+      }
     };
   }
 
@@ -72,7 +76,7 @@ export module Iterator {
             return { done: false, value: element.value };
           }
         }
-      },
+      }
     };
   }
 
@@ -94,9 +98,9 @@ export type ISequence<T> = Iterator<T> | T[];
 export function getSequenceIterator<T>(arg: Iterator<T> | T[]): Iterator<T> {
   if (Array.isArray(arg)) {
     return Iterator.fromArray(arg);
+  } else {
+    return arg;
   }
-
-  return arg;
 }
 
 export interface INextIterator<T> {
@@ -187,7 +191,7 @@ export interface INavigator<T> extends INextIterator<T> {
 export class MappedNavigator<T, R> extends MappedIterator<T, R> implements INavigator<R> {
 
   constructor(protected navigator: INavigator<T>, fn: (item: T) => R) {
-    super(navigator, <(item: T | null) => R>fn);
+    super(navigator, fn as (item: T | null) => R);
   }
 
   current() { return this.fn(this.navigator.current()); }

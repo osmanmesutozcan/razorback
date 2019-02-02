@@ -1,10 +1,10 @@
 import * as rback from 'razorback';
-import { EventEmitter, Event } from '../../base/event';
+import { Emitter, Event } from '../../base/event';
 
 export class CoreWorkspaceComponent {
 
   private readonly $_onDidChangeWorkspaceFolders =
-    new EventEmitter<rback.WorkspaceFoldersChangeEvent>();
+    new Emitter<rback.WorkspaceFoldersChangeEvent>();
   readonly $onDidChangeWorkspaceFolders: Event<rback.WorkspaceFoldersChangeEvent> =
     this.$_onDidChangeWorkspaceFolders.event;
 

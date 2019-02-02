@@ -1,7 +1,10 @@
-import { CharCode } from './charcode';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
-// TODO
-const isWindows = false;
+import { isWindows } from './platform';
+import { CharCode } from './charCode';
 
 const _schemePattern = /^\w[\w\d+.-]*$/;
 const _singleSlashStart = /^\//;
@@ -18,15 +21,15 @@ export function setUriThrowOnMissingScheme(value: boolean): boolean {
   return old;
 }
 
-function validateUri(ret: URI, _strict?: boolean): void {
+function _validateUri(ret: URI, _strict?: boolean): void {
 
   // scheme, must be set
   if (!ret.scheme) {
     if (_strict || _throwOnMissingSchema) {
       throw new Error(`[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`);
+    } else {
+      console.warn(`[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`);
     }
-
-    console.warn(`[UriError]: Scheme is missing: {scheme: "", authority: "${ret.authority}", path: "${ret.path}", query: "${ret.query}", fragment: "${ret.fragment}"}`);
   }
 
   // scheme, https://tools.ietf.org/html/rfc3986#section-3.1
@@ -43,18 +46,11 @@ function validateUri(ret: URI, _strict?: boolean): void {
   if (ret.path) {
     if (ret.authority) {
       if (!_singleSlashStart.test(ret.path)) {
-        throw new Error(
-          '[UriError]: If a URI contains an authority component, then the path'
-          + 'component must either be empty or begin with a slash ("/") character',
-        );
+        throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
       }
-
     } else {
       if (_doubleSlashStart.test(ret.path)) {
-        throw new Error(
-          '[UriError]: If a URI does not contain an authority component, then'
-          + 'the path cannot begin with two slash characters ("//")',
-        );
+        throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
       }
     }
   }
@@ -112,52 +108,49 @@ export class URI implements UriComponents {
       && typeof (<URI>thing).fragment === 'string'
       && typeof (<URI>thing).path === 'string'
       && typeof (<URI>thing).query === 'string'
-      && typeof (<URI>thing).scheme === 'string'
-      && typeof (<URI>thing).fsPath === 'function'
-      && typeof (<URI>thing).with === 'function'
-      && typeof (<URI>thing).toString === 'function';
+      && typeof (<URI>thing).scheme === 'string';
   }
 
-	/**
-	 * scheme is the 'http' part of 'http://www.msft.com/some/path?query#fragment'.
-	 * The part before the first colon.
-	 */
+  /**
+   * scheme is the 'http' part of 'http://www.msft.com/some/path?query#fragment'.
+   * The part before the first colon.
+   */
   readonly scheme: string;
 
-	/**
-	 * authority is the 'www.msft.com' part of 'http://www.msft.com/some/path?query#fragment'.
-	 * The part between the first double slashes and the next slash.
-	 */
+  /**
+   * authority is the 'www.msft.com' part of 'http://www.msft.com/some/path?query#fragment'.
+   * The part between the first double slashes and the next slash.
+   */
   readonly authority: string;
 
-	/**
-	 * path is the '/some/path' part of 'http://www.msft.com/some/path?query#fragment'.
-	 */
+  /**
+   * path is the '/some/path' part of 'http://www.msft.com/some/path?query#fragment'.
+   */
   readonly path: string;
 
-	/**
-	 * query is the 'query' part of 'http://www.msft.com/some/path?query#fragment'.
-	 */
+  /**
+   * query is the 'query' part of 'http://www.msft.com/some/path?query#fragment'.
+   */
   readonly query: string;
 
-	/**
-	 * fragment is the 'fragment' part of 'http://www.msft.com/some/path?query#fragment'.
-	 */
+  /**
+   * fragment is the 'fragment' part of 'http://www.msft.com/some/path?query#fragment'.
+   */
   readonly fragment: string;
 
-	/**
-	 * @internal
-	 */
+  /**
+   * @internal
+   */
   protected constructor(scheme: string, authority?: string, path?: string, query?: string, fragment?: string, _strict?: boolean);
 
-	/**
-	 * @internal
-	 */
+  /**
+   * @internal
+   */
   protected constructor(components: UriComponents);
 
-	/**
-	 * @internal
-	 */
+  /**
+   * @internal
+   */
   protected constructor(schemeOrData: string | UriComponents, authority?: string, path?: string, query?: string, fragment?: string, _strict?: boolean) {
 
     if (typeof schemeOrData === 'object') {
@@ -168,7 +161,7 @@ export class URI implements UriComponents {
       this.fragment = schemeOrData.fragment || _empty;
       // no validation because it's this URI
       // that creates uri components.
-      // validateUri(this);
+      // _validateUri(this);
     } else {
       this.scheme = schemeOrData || _empty;
       this.authority = authority || _empty;
@@ -176,7 +169,7 @@ export class URI implements UriComponents {
       this.query = query || _empty;
       this.fragment = fragment || _empty;
 
-      validateUri(this, _strict);
+      _validateUri(this, _strict);
     }
   }
 
@@ -203,52 +196,46 @@ export class URI implements UriComponents {
   ```
    *
    * Using `URI#path` to read a file (using fs-apis) would not be enough because parts of the path,
-   * namely the server name, would be missing. Therefore `URI#fsPath` exists - it's sugar to
-   * ease working with URIs that represent files on disk (`file` scheme).
+   * namely the server name, would be missing. Therefore `URI#fsPath` exists - it's sugar to ease working
+   * with URIs that represent files on disk (`file` scheme).
    */
   get fsPath(): string {
     // if (this.scheme !== 'file') {
-    // 	console.warn(`[UriError] calling fsPath with scheme ${this.scheme}`);
+    //   console.warn(`[UriError] calling fsPath with scheme ${this.scheme}`);
     // }
     return _makeFsPath(this);
   }
 
   // ---- modify to new -------------------------
 
-  public with(change: {
-    scheme?: string;
-    authority?: string | null;
-    path?: string | null;
-    query?: string | null;
-    fragment?: string | null
-  }): URI {
+  public with(change: { scheme?: string; authority?: string | null; path?: string | null; query?: string | null; fragment?: string | null }): URI {
 
     if (!change) {
       return this;
     }
 
     let { scheme, authority, path, query, fragment } = change;
-    if (scheme === undefined) {
+    if (scheme === void 0) {
       scheme = this.scheme;
     } else if (scheme === null) {
       scheme = _empty;
     }
-    if (authority === undefined) {
+    if (authority === void 0) {
       authority = this.authority;
     } else if (authority === null) {
       authority = _empty;
     }
-    if (path === undefined) {
+    if (path === void 0) {
       path = this.path;
     } else if (path === null) {
       path = _empty;
     }
-    if (query === undefined) {
+    if (query === void 0) {
       query = this.query;
     } else if (query === null) {
       query = _empty;
     }
-    if (fragment === undefined) {
+    if (fragment === void 0) {
       fragment = this.fragment;
     } else if (fragment === null) {
       fragment = _empty;
@@ -268,12 +255,12 @@ export class URI implements UriComponents {
 
   // ---- parse & validate ------------------------
 
-/**
- * Creates a new URI from a string, e.g. `http://www.msft.com/some/path`,
- * `file:///usr/home`, or `scheme:with/path`.
- *
- * @param value A string which represents an URI (see `URI#toString`).
- */
+  /**
+   * Creates a new URI from a string, e.g. `http://www.msft.com/some/path`,
+   * `file:///usr/home`, or `scheme:with/path`.
+   *
+   * @param value A string which represents an URI (see `URI#toString`).
+   */
   public static parse(value: string, _strict: boolean = false): URI {
     const match = _regexp.exec(value);
     if (!match) {
@@ -289,27 +276,27 @@ export class URI implements UriComponents {
     );
   }
 
-/**
- * Creates a new URI from a file system path, e.g. `c:\my\files`,
- * `/usr/home`, or `\\server\share\some\path`.
- *
- * The *difference* between `URI#parse` and `URI#file` is that the latter treats the argument
- * as path, not as stringified-uri. E.g. `URI.file(path)` is **not the same as**
- * `URI.parse('file://' + path)` because the path might contain characters that are
- * interpreted (# and ?). See the following sample:
- * ```ts
-const good = URI.file('/coding/c#/project1');
-good.scheme === 'file';
-good.path === '/coding/c#/project1';
-good.fragment === '';
-const bad = URI.parse('file://' + '/coding/c#/project1');
-bad.scheme === 'file';
-bad.path === '/coding/c'; // path is now broken
-bad.fragment === '/project1';
-```
- *
- * @param path A file system path (see `URI#fsPath`)
- */
+  /**
+   * Creates a new URI from a file system path, e.g. `c:\my\files`,
+   * `/usr/home`, or `\\server\share\some\path`.
+   *
+   * The *difference* between `URI#parse` and `URI#file` is that the latter treats the argument
+   * as path, not as stringified-uri. E.g. `URI.file(path)` is **not the same as**
+   * `URI.parse('file://' + path)` because the path might contain characters that are
+   * interpreted (# and ?). See the following sample:
+   * ```ts
+  const good = URI.file('/coding/c#/project1');
+  good.scheme === 'file';
+  good.path === '/coding/c#/project1';
+  good.fragment === '';
+  const bad = URI.parse('file://' + '/coding/c#/project1');
+  bad.scheme === 'file';
+  bad.path === '/coding/c'; // path is now broken
+  bad.fragment === '/project1';
+  ```
+   *
+   * @param path A file system path (see `URI#fsPath`)
+   */
   public static file(path: string): URI {
 
     let authority = _empty;
@@ -349,17 +336,17 @@ bad.fragment === '/project1';
 
   // ---- printing/externalize ---------------------------
 
-/**
- * Creates a string representation for this URI. It's guaranteed that calling
- * `URI.parse` with the result of this function creates an URI which is equal
- * to this URI.
- *
- * * The result shall *not* be used for display purposes but for externalization or transport.
- * * The result will be encoded using the percentage encoding and encoding happens mostly
- * ignore the scheme-specific encoding rules.
- *
- * @param skipEncoding Do not encode the result, default is `false`
- */
+  /**
+   * Creates a string representation for this URI. It's guaranteed that calling
+   * `URI.parse` with the result of this function creates an URI which is equal
+   * to this URI.
+   *
+   * * The result shall *not* be used for display purposes but for externalization or transport.
+   * * The result will be encoded using the percentage encoding and encoding happens mostly
+   * ignore the scheme-specific encoding rules.
+   *
+   * @param skipEncoding Do not encode the result, default is `false`
+   */
   public toString(skipEncoding: boolean = false): string {
     return _asFormatted(this, skipEncoding);
   }
@@ -416,15 +403,15 @@ class _URI extends URI {
         this._formatted = _asFormatted(this, false);
       }
       return this._formatted;
+    } else {
+      // we don't cache that
+      return _asFormatted(this, true);
     }
-
-    // we don't cache that
-    return _asFormatted(this, true);
   }
 
   toJSON(): object {
     const res = <UriState>{
-      $mid: 1,
+      $mid: 1
     };
     // cached state
     if (this._fsPath) {
@@ -482,9 +469,8 @@ function encodeURIComponentFast(uriComponent: string, allowSlash: boolean): stri
   let res: string | undefined = undefined;
   let nativeEncodePos = -1;
 
-  // tslint:disable-next-line:no-increment-decrement
   for (let pos = 0; pos < uriComponent.length; pos++) {
-    const code = uriComponent.charCodeAt(pos);
+    let code = uriComponent.charCodeAt(pos);
 
     // unreserved characters: https://tools.ietf.org/html/rfc3986#section-2.3
     if (
@@ -560,6 +546,7 @@ function encodeURIComponentMinimal(path: string): string {
 
 /**
  * Compute `fsPath` for the given uri
+ * @param uri
  */
 function _makeFsPath(uri: URI): string {
 

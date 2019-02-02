@@ -1,10 +1,10 @@
 import { URI } from '../../base/uri';
 import { Event } from '../../base/event';
 import * as paths from '../../base/paths';
-import * as resources from 'vs/base/common/resources';
-import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
-import { TernarySearchTree } from 'vs/base/common/map';
-import { coalesce, distinct } from 'vs/base/common/arrays';
+import * as resources from '../../base/resources';
+import { TernarySearchTree } from '../../base/map';
+import { coalesce, distinct } from '../../base/arrays';
+import { createDecorator } from '../instantiation';
 import { IWorkspaceIdentifier, IStoredWorkspaceFolder, isRawFileWorkspaceFolder, isRawUriWorkspaceFolder, ISingleFolderWorkspaceIdentifier } from 'vs/platform/workspaces/common/workspaces';
 
 // TODO:

@@ -2,7 +2,7 @@
 
 import * as _ from 'lodash';
 import * as strings from '../../base/strings';
-import { Event, EventEmitter } from '../../base/event';
+import { Event, Emitter } from '../../base/event';
 import { IJSONSchema } from '../../base/jsonSchema';
 import { localize } from '../../nls';
 import { Registry } from '../../platform/registry/registry';
@@ -135,11 +135,11 @@ class ConfigurationRegistry implements IConfigurationRegistry {
   private overrideIdentifiers: string[] = [];
   private overridePropertyPattern: string | undefined;
 
-  private readonly _onDidSchemaChange: EventEmitter<void> = new EventEmitter<void>();
+  private readonly _onDidSchemaChange: Emitter<void> = new Emitter<void>();
   readonly onDidSchemaChange: Event<void> = this._onDidSchemaChange.event;
 
-  private readonly _onDidRegisterConfiguration: EventEmitter<string[]> =
-    new EventEmitter<string[]>();
+  private readonly _onDidRegisterConfiguration: Emitter<string[]> =
+    new Emitter<string[]>();
   readonly onDidRegisterConfiguration: Event<string[]> = this._onDidRegisterConfiguration.event;
 
   constructor() {

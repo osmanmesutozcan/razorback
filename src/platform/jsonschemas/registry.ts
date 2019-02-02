@@ -1,5 +1,5 @@
 import { IJSONSchema } from '../../base/jsonSchema';
-import { Event, EventEmitter } from '../../base/event';
+import { Event, Emitter } from '../../base/event';
 import { Registry } from '../registry/registry';
 
 export const Extensions = {
@@ -42,7 +42,7 @@ class JSONContributionRegistry implements IJSONContributionRegistry {
 
   private schemasById: { [id: string]: IJSONSchema };
 
-  private readonly _onDidChangeSchema: EventEmitter<string> = new EventEmitter<string>();
+  private readonly _onDidChangeSchema: Emitter<string> = new Emitter<string>();
   readonly onDidChangeSchema: Event<string> = this._onDidChangeSchema.event;
 
   constructor() {

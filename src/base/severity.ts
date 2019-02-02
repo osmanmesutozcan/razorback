@@ -1,9 +1,16 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import * as nls from '../nls';
+import * as strings from './strings';
 
 enum Severity {
   Ignore = 0,
   Info = 1,
   Warning = 2,
-  Error = 3,
+  Error = 3
 }
 
 namespace Severity {
@@ -13,26 +20,29 @@ namespace Severity {
   const _warn = 'warn';
   const _info = 'info';
 
+  const _displayStrings: { [value: number]: string; } = Object.create(null);
+  _displayStrings[Severity.Error] = nls.localize('sev.error', "Error");
+  _displayStrings[Severity.Warning] = nls.localize('sev.warning', "Warning");
+  _displayStrings[Severity.Info] = nls.localize('sev.info', "Info");
+
   /**
    * Parses 'error', 'warning', 'warn', 'info' in call casings
    * and falls back to ignore.
    */
-  export function fromValue(_value: string): Severity {
-    if (!_value) {
+  export function fromValue(value: string): Severity {
+    if (!value) {
       return Severity.Ignore;
     }
 
-    const value = _value.toLowerCase();
-
-    if (_error === value) {
+    if (strings.equalsIgnoreCase(_error, value)) {
       return Severity.Error;
     }
 
-    if ((_warning === value) || (_warn === value)) {
+    if (strings.equalsIgnoreCase(_warning, value) || strings.equalsIgnoreCase(_warn, value)) {
       return Severity.Warning;
     }
 
-    if (_info === value) {
+    if (strings.equalsIgnoreCase(_info, value)) {
       return Severity.Info;
     }
     return Severity.Ignore;

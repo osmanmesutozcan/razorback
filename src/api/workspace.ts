@@ -1,12 +1,12 @@
 import * as rback from 'razorback';
 import { CoreWorkspaceComponent } from '../core/workspace/component';
 import { CoreContext } from '../core/core';
-import { Event, EventEmitter } from '../base/event';
+import { Event, Emitter } from '../base/event';
 import { CoreBindings } from './protocol';
 
 export class ExtHostWorkspace {
   private readonly _onDidChangeWorkspaceFolders =
-    new EventEmitter<rback.WorkspaceFoldersChangeEvent>();
+    new Emitter<rback.WorkspaceFoldersChangeEvent>();
   readonly onDidChangeWorkspaceFolders: Event<rback.WorkspaceFoldersChangeEvent> =
     this._onDidChangeWorkspaceFolders.event;
 

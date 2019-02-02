@@ -56,7 +56,7 @@ export class CoreSequence implements ICoreSequence {
     }
   }
 
-  async onRequest(method: string, args: any, response: any): Promise<void> {
+  async onRequest(method: string, args: any, _response: any): Promise<void> {
     logger.info('CoreSequence#onRequest', method, args);
   }
 }

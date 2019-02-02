@@ -1,5 +1,5 @@
 import { createLogger } from '../logger';
-import { Disposable } from '../base/lifecycle';
+import { toDisposable } from '../base/lifecycle';
 
 const logger = createLogger('razorback#api#noop');
 
@@ -11,6 +11,6 @@ export function noop(name: string, options: {disposable?: boolean, description?:
   );
 
   if (options.disposable) {
-    return new Disposable(() => logger.warn(`running noop disposable: ${name}`));
+    return toDisposable(() => logger.warn(`running noop disposable: ${name}`));
   }
 }

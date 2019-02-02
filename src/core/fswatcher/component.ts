@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as chokidar from 'chokidar';
 import { inject } from 'inversify';
 import { createLogger } from '../../logger';
-import { EventEmitter, Event } from '../../base/event';
+import { Emitter, Event } from '../../base/event';
 import { parseGitIgnore } from '../../base/fs';
 import { URI } from '../../base/uri';
 import { CoreBindings } from '../types';
@@ -15,7 +15,7 @@ import { FileSystemEvents } from './types';
 const logger = createLogger('razorback#fswatcher');
 
 export class CoreFileSystemWatcherComponent {
-  private readonly $_onFileEvent = new EventEmitter<FileSystemEvents>();
+  private readonly $_onFileEvent = new Emitter<FileSystemEvents>();
   readonly $onFileEvent: Event<FileSystemEvents> = this.$_onFileEvent.event;
 
   private readonly _coreWorkspaceComponent: CoreWorkspaceComponent;

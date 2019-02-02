@@ -1,4 +1,7 @@
-// tslint:disable:no-increment-decrement
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 export const enum ScanError {
   None = 0,
@@ -7,7 +10,7 @@ export const enum ScanError {
   UnexpectedEndOfNumber = 3,
   InvalidUnicode = 4,
   InvalidEscapeCharacter = 5,
-  InvalidCharacter = 6,
+  InvalidCharacter = 6
 }
 
 export const enum SyntaxKind {
@@ -27,7 +30,7 @@ export const enum SyntaxKind {
   LineBreakTrivia = 14,
   Trivia = 15,
   Unknown = 16,
-  EOF = 17,
+  EOF = 17
 }
 
 /**
@@ -51,8 +54,7 @@ export interface JSONScanner {
    */
   getToken(): SyntaxKind;
   /**
-   * Returns the last read token value. The value for strings is the decoded string content.
-   * For numbers its of type number, for boolean it's true or false.
+   * Returns the last read token value. The value for strings is the decoded string content. For numbers its of type number, for boolean it's true or false.
    */
   getTokenValue(): string;
   /**
@@ -68,6 +70,7 @@ export interface JSONScanner {
    */
   getTokenError(): ScanError;
 }
+
 
 export interface ParseError {
   error: ParseErrorCode;
@@ -91,7 +94,7 @@ export const enum ParseErrorCode {
   UnexpectedEndOfNumber = 13,
   InvalidUnicode = 14,
   InvalidEscapeCharacter = 15,
-  InvalidCharacter = 16,
+  InvalidCharacter = 16
 }
 
 export type NodeType = 'object' | 'array' | 'property' | 'string' | 'number' | 'boolean' | 'null';
@@ -120,8 +123,7 @@ export interface Location {
    */
   path: JSONPath;
   /**
-   * Matches the locations path against a pattern consisting of
-   * strings (for properties) and numbers (for array indices).
+   * Matches the locations path against a pattern consisting of strings (for properties) and numbers (for array indices).
    * '*' will match a single segment, of any property name or index.
    * '**' will match a sequece of segments or no segment, of any property name or index.
    */
@@ -139,56 +141,48 @@ export interface ParseOptions {
 
 export namespace ParseOptions {
   export const DEFAULT = {
-    allowTrailingComma: true,
+    allowTrailingComma: true
   };
 }
 
 export interface JSONVisitor {
   /**
-   * Invoked when an open brace is encountered and an object is started.
-   * The offset and length represent the location of the open brace.
+   * Invoked when an open brace is encountered and an object is started. The offset and length represent the location of the open brace.
    */
   onObjectBegin?: (offset: number, length: number) => void;
 
   /**
-   * Invoked when a property is encountered. The offset and length
-   * represent the location of the property name.
+   * Invoked when a property is encountered. The offset and length represent the location of the property name.
    */
   onObjectProperty?: (property: string, offset: number, length: number) => void;
 
   /**
-   * Invoked when a closing brace is encountered and an object is completed.
-   * The offset and length represent the location of the closing brace.
+   * Invoked when a closing brace is encountered and an object is completed. The offset and length represent the location of the closing brace.
    */
   onObjectEnd?: (offset: number, length: number) => void;
 
   /**
-   * Invoked when an open bracket is encountered. The offset and
-   * length represent the location of the open bracket.
+   * Invoked when an open bracket is encountered. The offset and length represent the location of the open bracket.
    */
   onArrayBegin?: (offset: number, length: number) => void;
 
   /**
-   * Invoked when a closing bracket is encountered. The offset and
-   * length represent the location of the closing bracket.
+   * Invoked when a closing bracket is encountered. The offset and length represent the location of the closing bracket.
    */
   onArrayEnd?: (offset: number, length: number) => void;
 
   /**
-   * Invoked when a literal value is encountered. The offset and
-   * length represent the location of the literal value.
+   * Invoked when a literal value is encountered. The offset and length represent the location of the literal value.
    */
   onLiteralValue?: (value: any, offset: number, length: number) => void;
 
   /**
-   * Invoked when a comma or colon separator is encountered.
-   * The offset and length represent the location of the separator.
+   * Invoked when a comma or colon separator is encountered. The offset and length represent the location of the separator.
    */
   onSeparator?: (character: string, offset: number, length: number) => void;
 
   /**
-   * When comments are allowed, invoked when a line or block comment is encountered.
-   * The offset and length represent the location of the comment.
+   * When comments are allowed, invoked when a line or block comment is encountered. The offset and length represent the location of the comment.
    */
   onComment?: (offset: number, length: number) => void;
 
@@ -204,31 +198,30 @@ export interface JSONVisitor {
  */
 export function createScanner(text: string, ignoreTrivia: boolean = false): JSONScanner {
 
-  let pos = 0;
-  const len = text.length;
-  let value: string = '';
-  let tokenOffset = 0;
-  let token: SyntaxKind = SyntaxKind.Unknown;
-  let scanError: ScanError = ScanError.None;
+  let pos = 0,
+    len = text.length,
+    value: string = '',
+    tokenOffset = 0,
+    token: SyntaxKind = SyntaxKind.Unknown,
+    scanError: ScanError = ScanError.None;
 
   function scanHexDigits(count: number, exact?: boolean): number {
     let digits = 0;
     let value = 0;
     while (digits < count || !exact) {
-      const ch = text.charCodeAt(pos);
+      let ch = text.charCodeAt(pos);
       if (ch >= CharacterCodes._0 && ch <= CharacterCodes._9) {
         value = value * 16 + ch - CharacterCodes._0;
-
-      } else if (ch >= CharacterCodes.A && ch <= CharacterCodes.F) {
+      }
+      else if (ch >= CharacterCodes.A && ch <= CharacterCodes.F) {
         value = value * 16 + ch - CharacterCodes.A + 10;
-
-      } else if (ch >= CharacterCodes.a && ch <= CharacterCodes.f) {
+      }
+      else if (ch >= CharacterCodes.a && ch <= CharacterCodes.f) {
         value = value * 16 + ch - CharacterCodes.a + 10;
-
-      } else {
+      }
+      else {
         break;
       }
-
       pos++;
       digits++;
     }
@@ -1046,19 +1039,14 @@ export function contains(node: Node, offset: number, includeRightBound = false):
 }
 
 /**
- * Finds the most inner node at the given offset.
- * If includeRightBound is set, also finds nodes that end at the given offset.
+ * Finds the most inner node at the given offset. If includeRightBound is set, also finds nodes that end at the given offset.
  */
-export function findNodeAtOffset(
-  node: Node,
-  offset: number,
-  includeRightBound = false,
-): Node | undefined {
+export function findNodeAtOffset(node: Node, offset: number, includeRightBound = false): Node | undefined {
   if (contains(node, offset, includeRightBound)) {
-    const children = node.children;
+    let children = node.children;
     if (Array.isArray(children)) {
       for (let i = 0; i < children.length && children[i].offset <= offset; i++) {
-        const item = findNodeAtOffset(children[i], offset, includeRightBound);
+        let item = findNodeAtOffset(children[i], offset, includeRightBound);
         if (item) {
           return item;
         }
@@ -1070,48 +1058,36 @@ export function findNodeAtOffset(
   return void 0;
 }
 
-/**
- * Parses the given text and invokes the visitor
- * functions for each object, array and literal reached.
- */
-export function visit(
-  text: string,
-  visitor: JSONVisitor,
-  options: ParseOptions = ParseOptions.DEFAULT,
-): any {
 
-  const _scanner = createScanner(text, false);
+/**
+ * Parses the given text and invokes the visitor functions for each object, array and literal reached.
+ */
+export function visit(text: string, visitor: JSONVisitor, options: ParseOptions = ParseOptions.DEFAULT): any {
+
+  let _scanner = createScanner(text, false);
 
   function toNoArgVisit(visitFunction?: (offset: number, length: number) => void): () => void {
-    return visitFunction
-      ? () => visitFunction(_scanner.getTokenOffset(), _scanner.getTokenLength())
-      : () => true;
+    return visitFunction ? () => visitFunction(_scanner.getTokenOffset(), _scanner.getTokenLength()) : () => true;
+  }
+  function toOneArgVisit<T>(visitFunction?: (arg: T, offset: number, length: number) => void): (arg: T) => void {
+    return visitFunction ? (arg: T) => visitFunction(arg, _scanner.getTokenOffset(), _scanner.getTokenLength()) : () => true;
   }
 
-  function toOneArgVisit<T>(
-    visitFunction?: (arg: T, offset: number, length: number) => void,
-  ): (arg: T) => void {
-    return visitFunction
-      ? (arg: T) => visitFunction(arg, _scanner.getTokenOffset(), _scanner.getTokenLength())
-      : () => true;
-  }
+  let onObjectBegin = toNoArgVisit(visitor.onObjectBegin),
+    onObjectProperty = toOneArgVisit(visitor.onObjectProperty),
+    onObjectEnd = toNoArgVisit(visitor.onObjectEnd),
+    onArrayBegin = toNoArgVisit(visitor.onArrayBegin),
+    onArrayEnd = toNoArgVisit(visitor.onArrayEnd),
+    onLiteralValue = toOneArgVisit(visitor.onLiteralValue),
+    onSeparator = toOneArgVisit(visitor.onSeparator),
+    onComment = toNoArgVisit(visitor.onComment),
+    onError = toOneArgVisit(visitor.onError);
 
-  const onObjectBegin = toNoArgVisit(visitor.onObjectBegin);
-  const onObjectProperty = toOneArgVisit(visitor.onObjectProperty);
-  const onObjectEnd = toNoArgVisit(visitor.onObjectEnd);
-  const onArrayBegin = toNoArgVisit(visitor.onArrayBegin);
-  const onArrayEnd = toNoArgVisit(visitor.onArrayEnd);
-  const onLiteralValue = toOneArgVisit(visitor.onLiteralValue);
-  const onSeparator = toOneArgVisit(visitor.onSeparator);
-  const onComment = toNoArgVisit(visitor.onComment);
-  const onError = toOneArgVisit(visitor.onError);
-
-  const disallowComments = options && options.disallowComments;
-  const allowTrailingComma = options && options.allowTrailingComma;
-
+  let disallowComments = options && options.disallowComments;
+  let allowTrailingComma = options && options.allowTrailingComma;
   function scanNext(): SyntaxKind {
     while (true) {
-      const token = _scanner.scan();
+      let token = _scanner.scan();
       switch (_scanner.getTokenError()) {
         case ScanError.InvalidUnicode:
           handleError(ParseErrorCode.InvalidUnicode);
@@ -1155,11 +1131,7 @@ export function visit(
     }
   }
 
-  function handleError(
-    error: ParseErrorCode,
-    skipUntilAfter: SyntaxKind[] = [],
-    skipUntil: SyntaxKind[] = [],
-  ): void {
+  function handleError(error: ParseErrorCode, skipUntilAfter: SyntaxKind[] = [], skipUntil: SyntaxKind[] = []): void {
     onError(error);
     if (skipUntilAfter.length + skipUntil.length > 0) {
       let token = _scanner.getToken();
@@ -1176,7 +1148,7 @@ export function visit(
   }
 
   function parseString(isValue: boolean): boolean {
-    const value = _scanner.getTokenValue();
+    let value = _scanner.getTokenValue();
     if (isValue) {
       onLiteralValue(value);
     } else {
@@ -1219,34 +1191,19 @@ export function visit(
 
   function parseProperty(): boolean {
     if (_scanner.getToken() !== SyntaxKind.StringLiteral) {
-      handleError(
-        ParseErrorCode.PropertyNameExpected,
-        [],
-        [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken],
-      );
-
+      handleError(ParseErrorCode.PropertyNameExpected, [], [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken]);
       return false;
     }
-
     parseString(false);
     if (_scanner.getToken() === SyntaxKind.ColonToken) {
       onSeparator(':');
       scanNext(); // consume colon
 
       if (!parseValue()) {
-        handleError(
-          ParseErrorCode.ValueExpected,
-          [],
-          [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken],
-        );
+        handleError(ParseErrorCode.ValueExpected, [], [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken]);
       }
-
     } else {
-      handleError(
-        ParseErrorCode.ColonExpected,
-        [],
-        [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken],
-      );
+      handleError(ParseErrorCode.ColonExpected, [], [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken]);
     }
     return true;
   }
@@ -1256,10 +1213,7 @@ export function visit(
     scanNext(); // consume open brace
 
     let needsComma = false;
-    while (
-      _scanner.getToken() !== SyntaxKind.CloseBraceToken
-      && _scanner.getToken() !== SyntaxKind.EOF
-    ) {
+    while (_scanner.getToken() !== SyntaxKind.CloseBraceToken && _scanner.getToken() !== SyntaxKind.EOF) {
       if (_scanner.getToken() === SyntaxKind.CommaToken) {
         if (!needsComma) {
           handleError(ParseErrorCode.ValueExpected, [], []);
@@ -1273,11 +1227,7 @@ export function visit(
         handleError(ParseErrorCode.CommaExpected, [], []);
       }
       if (!parseProperty()) {
-        handleError(
-          ParseErrorCode.ValueExpected,
-          [],
-          [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken],
-        );
+        handleError(ParseErrorCode.ValueExpected, [], [SyntaxKind.CloseBraceToken, SyntaxKind.CommaToken]);
       }
       needsComma = true;
     }
@@ -1295,10 +1245,7 @@ export function visit(
     scanNext(); // consume open bracket
 
     let needsComma = false;
-    while (
-      _scanner.getToken() !== SyntaxKind.CloseBracketToken
-      && _scanner.getToken() !== SyntaxKind.EOF
-    ) {
+    while (_scanner.getToken() !== SyntaxKind.CloseBracketToken && _scanner.getToken() !== SyntaxKind.EOF) {
       if (_scanner.getToken() === SyntaxKind.CommaToken) {
         if (!needsComma) {
           handleError(ParseErrorCode.ValueExpected, [], []);
@@ -1311,13 +1258,8 @@ export function visit(
       } else if (needsComma) {
         handleError(ParseErrorCode.CommaExpected, [], []);
       }
-
       if (!parseValue()) {
-        handleError(
-          ParseErrorCode.ValueExpected,
-          [],
-          [SyntaxKind.CloseBracketToken, SyntaxKind.CommaToken],
-        );
+        handleError(ParseErrorCode.ValueExpected, [], [SyntaxKind.CloseBracketToken, SyntaxKind.CommaToken]);
       }
       needsComma = true;
     }
@@ -1364,11 +1306,11 @@ export function visit(
  */
 export function stripComments(text: string, replaceCh?: string): string {
 
-  const _scanner = createScanner(text);
-  const parts: string[] = [];
-  let kind: SyntaxKind;
-  let offset = 0;
-  let pos: number;
+  let _scanner = createScanner(text),
+    parts: string[] = [],
+    kind: SyntaxKind,
+    offset = 0,
+    pos: number;
 
   do {
     pos = _scanner.getPosition();

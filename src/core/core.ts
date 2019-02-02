@@ -1,4 +1,4 @@
-import { attach, NeovimClient, Buffer as NeovimBuffer } from 'neovim';
+import { attach, NeovimClient } from 'neovim';
 import { makeLoggerMiddleware } from 'inversify-logger-middleware';
 import {
   Container,
@@ -131,4 +131,3 @@ export class CoreContext extends Container {
     logger.error('Not Implemented');
   }
 }
-

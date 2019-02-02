@@ -1,5 +1,10 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { Emitter, Event } from './event';
 import { IDisposable } from './lifecycle';
-import { Event, EventEmitter as Emitter } from './event';
 
 export interface CancellationToken {
   readonly isCancellationRequested: boolean;
@@ -11,7 +16,7 @@ export interface CancellationToken {
 }
 
 const shortcutEvent = Object.freeze(function (callback, context?): IDisposable {
-  const handle = setTimeout(callback.bind(context), 0);
+  let handle = setTimeout(callback.bind(context), 0);
   return { dispose() { clearTimeout(handle); } };
 } as Event<any>);
 
@@ -31,14 +36,15 @@ export namespace CancellationToken {
       && typeof (thing as CancellationToken).onCancellationRequested === 'function';
   }
 
+
   export const None: CancellationToken = Object.freeze({
     isCancellationRequested: false,
-    onCancellationRequested: Event.None,
+    onCancellationRequested: Event.None
   });
 
   export const Cancelled: CancellationToken = Object.freeze({
     isCancellationRequested: true,
-    onCancellationRequested: shortcutEvent,
+    onCancellationRequested: shortcutEvent
   });
 }
 

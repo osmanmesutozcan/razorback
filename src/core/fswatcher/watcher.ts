@@ -1,18 +1,18 @@
 import * as rback from 'razorback';
 import { URI } from '../../base/uri';
-import { parseSync } from '../../base/glob';
-import { Disposable } from '../../base/lifecycle';
-import { EventEmitter, Event } from '../../base/event';
+import { parse, IRelativePattern } from '../../base/glob';
+// import { Disposable } from '../../base/lifecycle';
+import { Emitter, Event } from '../../base/event';
 import { FileSystemEvents } from './types';
 
 // TODO: have message service to show these erorrs to user, so they can
 // fix stuff if they need to.
 export class FileSystemWatcher implements rback.FileSystemWatcher {
 
-  private _onDidCreate = new EventEmitter<rback.Uri>();
-  private _onDidChange = new EventEmitter<rback.Uri>();
-  private _onDidDelete = new EventEmitter<rback.Uri>();
-  private _disposable: Disposable;
+  private _onDidCreate = new Emitter<rback.Uri>();
+  private _onDidChange = new Emitter<rback.Uri>();
+  private _onDidDelete = new Emitter<rback.Uri>();
+  // private _disposable: Disposable;
   private _config = 0;
 
   get ignoreCreateEvents(): boolean {
@@ -29,7 +29,7 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
 
   constructor(
     dispatcher: Event<FileSystemEvents>,
-    globPattern: string | rback.RelativePattern,
+    globPattern: string | IRelativePattern,
     ignoreCreateEvents?: boolean,
     ignoreChangeEvents?: boolean,
     ignoreDeleteEvents?: boolean,
@@ -45,7 +45,7 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
       this._config += 0b100;
     }
 
-    const parsedPattern = parseSync(globPattern);
+    const parsedPattern = parse(globPattern);
 
     dispatcher((events) => {
       if (!ignoreCreateEvents) {
@@ -74,15 +74,16 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
       }
     });
 
-    this._disposable = Disposable.from(
-      this._onDidCreate,
-      this._onDidChange,
-      this._onDidDelete,
-    );
+    // TODO
+    // this._disposable = Disposable.from(
+    //   this._onDidCreate,
+    //   this._onDidChange,
+    //   this._onDidDelete,
+    // );
   }
 
   dispose() {
-    this._disposable.dispose();
+    // this._disposable.dispose();
   }
 
   get onDidCreate(): Event<rback.Uri> {

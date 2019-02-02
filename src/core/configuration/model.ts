@@ -3,8 +3,8 @@ import * as json from '../../base/json';
 import * as arrays from '../../base/arrays';
 import * as objects from '../../base/objects';
 import { URI } from '../../base/uri';
+import { ResourceMap } from '../../base/map';
 import { Workspace } from '../workspace/workspace';
-import { ResourceMap } from 'vs/base/common/map';
 import { OVERRIDE_PROPERTY_PATTERN } from 'vs/platform/configuration/common/configurationRegistry';
 import { IOverrides, overrideIdentifierFromKey, addToValueTree, toValuesTree, IConfigurationModel, getConfigurationValue, IConfigurationOverrides, IConfigurationData, getDefaultValues, getConfigurationKeys, IConfigurationChangeEvent, ConfigurationTarget, removeFromValueTree, toOverrides } from 'vs/platform/configuration/common/configuration';
 
@@ -279,9 +279,9 @@ export class ConfigurationModelParser {
   }
 
   protected parseRaw(raw: any): IConfigurationModel {
-    const contents = toValuesTree(raw, message => console.error(`Conflict in settings file ${this._name}: ${message}`));
+    const contents = toValuesTree(raw, (message: any) => console.error(`Conflict in settings file ${this._name}: ${message}`));
     const keys = Object.keys(raw);
-    const overrides: IOverrides[] = toOverrides(raw, message => console.error(`Conflict in settings file ${this._name}: ${message}`));
+    const overrides: IOverrides[] = toOverrides(raw, (message: any) => console.error(`Conflict in settings file ${this._name}: ${message}`));
     return { contents, keys, overrides };
   }
 }

@@ -1,15 +1,15 @@
 import * as rback from 'razorback';
 import { CoreContext } from '../core/core';
 import { CoreDocumentsComponent } from '../core/documents/component';
-import { Event, EventEmitter } from '../base/event';
+import { Event, Emitter } from '../base/event';
 import { CoreBindings } from './protocol';
 
 // TODO: (maybe?) rename this to buffer ?
 export class ExtHostDocuments {
 
-  private readonly _onDidOpenTextDocument = new EventEmitter<rback.TextDocument>();
-  private readonly _onDidCloseTextDocument = new EventEmitter<rback.TextDocument>();
-  private readonly _onDidSaveTextDocument = new EventEmitter<rback.TextDocument>();
+  private readonly _onDidOpenTextDocument = new Emitter<rback.TextDocument>();
+  private readonly _onDidCloseTextDocument = new Emitter<rback.TextDocument>();
+  private readonly _onDidSaveTextDocument = new Emitter<rback.TextDocument>();
 
   readonly onDidOpenTextDocument: Event<rback.TextDocument> = this._onDidOpenTextDocument.event;
   readonly onDidCloseTextDocument: Event<rback.TextDocument> = this._onDidCloseTextDocument.event;
