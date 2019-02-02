@@ -30,7 +30,7 @@ export class ExtHostConfiguration {
         return true;
       },
       get: <T>(_key: string, _defaultValue?: T) => {
-        return {};
+        return _defaultValue;
       },
       update: async (_key: string, _value: any, _arg: rback.ConfigurationTarget | boolean) => {
         return;

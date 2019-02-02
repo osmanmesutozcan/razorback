@@ -25,7 +25,8 @@
     "lru-cache": "^5.1.1",
     "neovim": "^4.2.1",
     "vm2": "^3.6.6",
-    "vscode-languageserver-protocol": "^3.14.1"
+    "vscode-languageserver-protocol": "^3.14.1",
+    "vscode-nls": "^4.0.0"
   },
   "devDependencies": {
     "@types/chokidar": "^1.7.5",
