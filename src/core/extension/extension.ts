@@ -1,3 +1,4 @@
+import * as rback from 'razorback';
 import { createLogger } from '../../logger';
 import { ICreateApi } from '../../api';
 import { createSandbox } from '../sandbox';
@@ -9,16 +10,52 @@ import {
 
 const logger = createLogger('razorback#extension#extension');
 
-export class Extension {
-  private extension: IExtension;
+export class Extension<T> implements rback.Extension<T> {
+  /*
+   * Extension module in sandbox.
+   */
+  private _extension: IExtension;
+
+  /*
+   * Contains all extension info.
+   */
+  private _description: IExtensionDescription;
+  get extensionPath(): string {
+    return this._description.extensionLocation.path;
+  }
+  get id(): string {
+    return this._description.id;
+  }
+
+  private _packageJSON: any;
+  get packageJSON(): any {
+    return this._packageJSON;
+  }
+
+  get exports(): T {
+    if (!this._isActive) {
+      // TODO: This action is invalid
+    }
+
+    // TODO: return extension public api
+    return {} as T;
+  }
+
+  /*
+   * Extension context
+   * TODO: Actually construct this.
+   */
+  private _context = {
+    subscriptions: [],
+  };
 
   /*
    * Is extension active.
    * Flags if application is activated at the moment.
    */
-  private isActive: boolean = false;
-  get active(): boolean {
-    return this.isActive;
+  private _isActive: boolean = false;
+  get isActive(): boolean {
+    return this._isActive;
   }
 
   /*
@@ -35,6 +72,7 @@ export class Extension {
     createApi: ICreateApi,
     extension: IExtensionDescription,
     extensionRegistry: ExtensionDescriptionRegistry,
+    packageJSON: any,
   ) {
     const sandbox = createSandbox(
       createApi,
@@ -42,44 +80,30 @@ export class Extension {
       extensionRegistry,
     );
 
-    this.extension =
+    this._description = extension;
+    this._packageJSON = packageJSON;
+
+    this._extension =
       sandbox.require(extension.extensionLocation.path);
 
     logger.debug('extension imported successfully');
-
-    // TODO: Generate context.
-    this.activate({
-      subscriptions: [],
-    });
   }
 
   /**
    * Activate extension in sandbox context.
    */
-  async activate(context: any): Promise<boolean> {
-    this.isActive = true;
-    return this.extension.activate.apply(global, [context]);
+  async activate(): Promise<T> {
+    this._isActive = true;
+    this._extension.activate.apply(global, [this._context]);
+    // TODO: Return extension public api.
+    return {} as T;
   }
 
   /**
    * Deactivate extension in sandbox context.
    */
   async deactivate(): Promise<boolean> {
-    this.isActive = false;
-    return this.extension.deactivate();
-  }
-
-  /**
-   * Enable extension.
-   */
-  async enable(): Promise<void> {
-    // TODO:
-  }
-
-  /**
-   * Disable extension until enable.
-   */
-  async disable(): Promise<void> {
-    // TODO:
+    this._isActive = false;
+    return this._extension.deactivate();
   }
 }

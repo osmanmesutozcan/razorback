@@ -8,7 +8,6 @@ import { noopProvider } from '../core/provider/noop';
 import { CoreContext } from '../core/core';
 import { URI } from '../base/uri';
 import Severity from '../base/severity';
-import { Disposable } from '../base/lifecycle';
 import { Emitter } from '../base/event';
 import { CancellationTokenSource } from '../base/cancellation';
 
@@ -30,12 +29,12 @@ export function createApiFactory(coreContext: CoreContext) {
   // So it they will be available to main thread.
   // Now we can inject there classes to Services.
   const extHostCommands = coreContext.constant(ExtHostBindings.ExtHostCommands, new ExtHostCommands(coreContext));
+  const extHostExtensions = coreContext.constant(ExtHostBindings.ExtHostExtensions, new ExtHostExtensions(coreContext));
   const extHostMessageService = coreContext.constant(ExtHostBindings.ExtHostMessageService, new ExtHostMessageService(coreContext));
   const extHostWorkspace = coreContext.constant(ExtHostBindings.ExtHostWorkspace, new ExtHostWorkspace(coreContext));
   const extHostDocuments = coreContext.constant(ExtHostBindings.ExtHostDocuments, new ExtHostDocuments(coreContext));
   const extHostLanguages = coreContext.constant(ExtHostBindings.ExtHostLanguages, new ExtHostLanguages(coreContext));
   const extHostConfiguration = coreContext.constant(ExtHostBindings.ExtHostConfiguration, new ExtHostConfiguration());
-  const extHostExtensions = coreContext.constant(ExtHostBindings.ExtHostExtensions, new ExtHostExtensions());
   const extHostFileSystemEvents = coreContext.constant(ExtHostBindings.ExtHostFileSystemEvents, new ExtHostFileSystemEvents(coreContext));
 
   // TODO: Make sure each extension gets its own implementation.

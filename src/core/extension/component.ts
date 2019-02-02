@@ -7,27 +7,21 @@ import { Extension } from './extension';
 import { ExtensionDatabase } from './database';
 import {
   IExtensionModel,
-  IExtension,
   ExtensionInternalBindings,
   IExtensionDescription,
 } from './types';
 import { URI } from '../../base/uri';
 import { ICreateApi, createApiFactory } from '../../api';
 import { ExtensionDescriptionRegistry } from './registry';
-import { CoreBindings as CoreComponentBindings } from '../../api/protocol';
 
 const logger = createLogger('razorback#extension#component');
 
 export class ExtensionsComponent implements IComponent {
-  private readonly _extensionDescriptionRegistry: ExtensionDescriptionRegistry;
+  private _extensionDescriptionRegistry: ExtensionDescriptionRegistry | undefined;
 
   constructor(
     @inject(CoreBindings.CORE_INSTANCE) private core: CoreContext,
-  ) {
-
-    this._extensionDescriptionRegistry = core
-      .get(CoreComponentBindings.CoreExtensionDescriptionRegistry);
-  }
+  ) { }
 
   classes = {
     [ExtensionInternalBindings.DATABASE]: ExtensionDatabase,
@@ -36,7 +30,7 @@ export class ExtensionsComponent implements IComponent {
   /**
    * List of loaded extensions.
    */
-  private extensions = new Map<string, IExtension>();
+  private extensions = new Map<string, Extension<any>>();
 
   /*
    * Create api function that returns api surface.
@@ -61,8 +55,8 @@ export class ExtensionsComponent implements IComponent {
     const extensionDescriptions = await Promise.all(
       extensions.map(ext => database.getPackageJSON(ext)),
     );
-    this._extensionDescriptionRegistry
-      ._initialize(extensionDescriptions);
+    this._extensionDescriptionRegistry =
+      new ExtensionDescriptionRegistry(extensionDescriptions);
 
     await Promise.all(
       extensions.map(ext => this.loadExtension(ext)),
@@ -79,7 +73,8 @@ export class ExtensionsComponent implements IComponent {
     this.extensions.set(id, new Extension(
       this.createApi,
       await this._loadExtensionDescription(extension, packageJSON),
-      this._extensionDescriptionRegistry,
+      this._extensionDescriptionRegistry!,
+      packageJSON,
     ));
   }
 
@@ -122,5 +117,15 @@ export class ExtensionsComponent implements IComponent {
       isUnderDevelopment: false,
       extensionLocation: URI.file(main),
     };
+  }
+
+  getExtension(extensionId: string): Extension<any> | undefined {
+    return this.extensions.get(extensionId);
+  }
+
+  getAllExtensions(): Extension<any>[] {
+    const exts: Extension<any>[] = [];
+    this.extensions.forEach(e => exts.push(e));
+    return exts;
   }
 }

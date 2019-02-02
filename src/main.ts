@@ -18,7 +18,6 @@ import { CoreMessageComponent } from './core/message/component';
 import { CoreWorkspaceComponent } from './core/workspace/component';
 import { CoreLanguagesComponent } from './core/languages/component';
 import { CoreConfigurationComponent } from './core/configuration/component';
-import { ExtensionDescriptionRegistry } from './core/extension/registry';
 
 const logger = createLogger('razorback#main');
 
@@ -41,8 +40,6 @@ export async function main(options: ICoreOptions) {
     .component(CoreBindings.CoreFileSystemWatcherComponent, CoreFileSystemWatcherComponent);
   await coreContext
     .component(CoreBindings.CoreConfigurationComponent, CoreConfigurationComponent);
-  await coreContext
-    .component(CoreBindings.CoreExtensionDescriptionRegistry, ExtensionDescriptionRegistry);
 
   // NOTE: This is going to initialize services. We need to bring a system
   // that registers onActivation event listener to extensions.

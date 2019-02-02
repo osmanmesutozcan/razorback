@@ -1,14 +1,23 @@
 import * as rback from 'razorback';
-import { noop } from './noop';
+import { CoreContext } from '../core/core';
+import { ExtensionsComponent } from '../core/extension/component';
+import { CoreBindings } from './protocol';
 
 export class ExtHostExtensions {
-  getExtension(_extensionId: string): rback.Extension<any> | undefined {
-    noop('ExtHostExtensions#getExtension');
-    return;
+
+  constructor(private readonly _coreContext: CoreContext) { }
+
+  getExtension(extensionId: string): rback.Extension<any> | undefined {
+    const extensionsComponent = this._coreContext
+      .get<ExtensionsComponent>(CoreBindings.CoreExtensionsComponent);
+
+    return extensionsComponent.getExtension(extensionId);
   }
 
   get all(): rback.Extension<any>[] {
-    noop('ExtHostExtensions#all');
-    return [];
+    const extensionsComponent = this._coreContext
+      .get<ExtensionsComponent>(CoreBindings.CoreExtensionsComponent);
+
+    return extensionsComponent.getAllExtensions();
   }
 }

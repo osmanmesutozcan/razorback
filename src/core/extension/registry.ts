@@ -6,16 +6,15 @@ const logger = createLogger('razorback#extension#registry');
 const hasOwnProperty = Object.hasOwnProperty;
 
 export class ExtensionDescriptionRegistry {
-  private _extensionDescriptions: IExtensionDescription[] = [];
   private _extensionsMap: { [extensionId: string]: IExtensionDescription; } = {};
   private _extensionsArr: IExtensionDescription[] = [];
   private _activationMap: { [activationEvent: string]: IExtensionDescription[]; } = {};
 
-  constructor() { }
+  constructor(private _extensionDescriptions: IExtensionDescription[]) {
+    this._initialize();
+  }
 
-  _initialize(extensionDescriptions: IExtensionDescription[]): void {
-    this._extensionDescriptions = extensionDescriptions;
-
+  private _initialize(): void {
     // tslint:disable-next-line:no-increment-decrement
     for (let i = 0, len = this._extensionDescriptions.length; i < len; i++) {
       const extensionDescription = this._extensionDescriptions[i];
@@ -49,11 +48,9 @@ export class ExtensionDescriptionRegistry {
   public keepOnly(extensionIds: string[]): void {
     const toKeep = new Set<string>();
     extensionIds.forEach(extensionId => toKeep.add(extensionId));
-
-    this._initialize(
-      this._extensionDescriptions
-        .filter(extension => toKeep.has(extension.id)),
-    );
+    this._extensionDescriptions = this._extensionDescriptions
+      .filter(extension => toKeep.has(extension.id));
+    this._initialize();
   }
 
   public containsActivationEvent(activationEvent: string): boolean {
