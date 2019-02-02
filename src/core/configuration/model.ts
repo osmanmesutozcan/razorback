@@ -4,9 +4,24 @@ import * as arrays from '../../base/arrays';
 import * as objects from '../../base/objects';
 import { URI } from '../../base/uri';
 import { ResourceMap } from '../../base/map';
-import { Workspace } from '../workspace/workspace';
-import { OVERRIDE_PROPERTY_PATTERN } from 'vs/platform/configuration/common/configurationRegistry';
-import { IOverrides, overrideIdentifierFromKey, addToValueTree, toValuesTree, IConfigurationModel, getConfigurationValue, IConfigurationOverrides, IConfigurationData, getDefaultValues, getConfigurationKeys, IConfigurationChangeEvent, ConfigurationTarget, removeFromValueTree, toOverrides } from 'vs/platform/configuration/common/configuration';
+import { Workspace } from '../../platform/workspaces/workspace';
+import { OVERRIDE_PROPERTY_PATTERN } from './registry';
+import {
+  IOverrides,
+  overrideIdentifierFromKey,
+  addToValueTree,
+  toValuesTree,
+  IConfigurationModel,
+  getConfigurationValue,
+  IConfigurationOverrides,
+  IConfigurationData,
+  getDefaultValues,
+  getConfigurationKeys,
+  IConfigurationChangeEvent,
+  ConfigurationTarget,
+  removeFromValueTree,
+  toOverrides,
+} from './configuration';
 
 export class ConfigurationModel implements IConfigurationModel {
 
@@ -598,7 +613,7 @@ export class ConfigurationChangeEvent
   extends AbstractConfigurationChangeEvent
   implements IConfigurationChangeEvent {
 
-  private _source: ConfigurationTarget;
+  private _source: ConfigurationTarget | undefined;
   private _sourceConfig: any;
 
   constructor(
@@ -646,7 +661,7 @@ export class ConfigurationChangeEvent
   }
 
   get source(): ConfigurationTarget {
-    return this._source;
+    return this._source!;
   }
 
   get sourceConfig(): any {

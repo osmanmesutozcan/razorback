@@ -4,11 +4,15 @@ import * as paths from '../../base/paths';
 import * as resources from '../../base/resources';
 import { TernarySearchTree } from '../../base/map';
 import { coalesce, distinct } from '../../base/arrays';
-import { createDecorator } from '../instantiation';
-import { IWorkspaceIdentifier, IStoredWorkspaceFolder, isRawFileWorkspaceFolder, isRawUriWorkspaceFolder, ISingleFolderWorkspaceIdentifier } from 'vs/platform/workspaces/common/workspaces';
-
-// TODO:
-const isLinux = true;
+import { isLinux } from '../../base/platform';
+import { createDecorator } from '../../core/instantiation';
+import {
+  IWorkspaceIdentifier,
+  IStoredWorkspaceFolder,
+  isRawFileWorkspaceFolder,
+  isRawUriWorkspaceFolder,
+  ISingleFolderWorkspaceIdentifier,
+} from './workspaces';
 
 export const IWorkspaceContextService = createDecorator<IWorkspaceContextService>('contextService');
 
@@ -137,7 +141,7 @@ export interface IWorkspaceFolder extends IWorkspaceFolderData {
 export class Workspace implements IWorkspace {
 
   private _foldersMap: TernarySearchTree<WorkspaceFolder> = TernarySearchTree.forPaths<WorkspaceFolder>();
-  private _folders: WorkspaceFolder[];
+  private _folders: WorkspaceFolder[] = [];
 
   constructor(
     private _id: string,
