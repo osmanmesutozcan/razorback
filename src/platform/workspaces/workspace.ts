@@ -69,7 +69,9 @@ export interface IWorkspaceContextService {
   /**
    * Return `true` if the current workspace has the given identifier otherwise `false`.
    */
-  isCurrentWorkspace(workspaceIdentifier: ISingleFolderWorkspaceIdentifier | IWorkspaceIdentifier): boolean;
+  isCurrentWorkspace(
+    workspaceIdentifier: ISingleFolderWorkspaceIdentifier | IWorkspaceIdentifier,
+  ): boolean;
 
   /**
    * Returns if the provided resource is inside the workspace or not.

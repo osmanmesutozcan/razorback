@@ -1,0 +1,24 @@
+{
+  "editor.minimap.enabled": false,
+  "window.zoomLevel": -1,
+  "editor.tabSize": 2,
+  "gitlens.hovers.currentLine.over": "line",
+  "gitlens.mode.active": "zen",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "git.confirmSync": false,
+  "workbench.colorTheme": "Material Theme High Contrast",
+  "workbench.iconTheme": "eq-material-theme-icons-darker",
+  "editor.cursorBlinking": "solid",
+  "workbench.activityBar.visible": true,
+  "workbench.sideBar.location": "right",
+  "git.enableSmartCommit": true,
+  "editor.wordBasedSuggestions": false,
+  "editor.wrappingIndent": "indent",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "eslint.autoFixOnSave": true,
+  "search.location": "sidebar"
+}
+

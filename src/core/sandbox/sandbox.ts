@@ -5,6 +5,7 @@ import { createLogger } from '../../logger';
 import { IExtensionDescription } from '../extension/types';
 import { ICreateApi } from '../../api';
 import { ISandbox, IModule } from './types';
+import { ExtensionDescriptionRegistry } from '../extension/registry';
 
 // tslint:disable-next-line:variable-name
 const Module: IModule = require('module');
@@ -46,10 +47,14 @@ function makeRequire(
   this: any,
   createApi: ICreateApi,
   extension: IExtensionDescription,
+  extensionRegistry: ExtensionDescriptionRegistry,
 ): any {
   const req: any = (p: string) => {
     if (p === 'razorback' || p === 'vscode') {
-      return createApi(extension);
+      return createApi(
+        extension,
+        extensionRegistry,
+      );
     }
 
     return this.require(p);
@@ -68,6 +73,7 @@ function makeRequire(
 export function createSandbox(
   createApi: ICreateApi,
   extension: IExtensionDescription,
+  extensionRegistry: ExtensionDescriptionRegistry,
 ): ISandbox {
   const { extensionLocation, name } = extension;
   const logger = createLogger(`razorback#sandbox#ext#${name}`);
@@ -103,7 +109,7 @@ export function createSandbox(
 
   sandbox.require = function sandboxRequire(p: string): any {
     const { _compile } = Module.prototype;
-    Module.prototype._compile = compile(sandbox, createApi, extension);
+    Module.prototype._compile = compile(sandbox, createApi, extension, extensionRegistry);
 
     const exports = sandbox.module.require(p);
     Module.prototype._compile = _compile;
@@ -119,9 +125,14 @@ export function createSandbox(
 /**
  * Compile extension in sandbox.
  */
-function compile(sandbox: ISandbox, createApi: ICreateApi, extension: IExtensionDescription) {
+function compile(
+  sandbox: ISandbox,
+  createApi: ICreateApi,
+  extension: IExtensionDescription,
+  extensionRegistry: ExtensionDescriptionRegistry,
+) {
   return function (this: any, content: string, filename: string): any {
-    const require = makeRequire.call(this, createApi, extension);
+    const require = makeRequire.call(this, createApi, extension, extensionRegistry);
     const dirname = path.dirname(filename);
 
     // remove shebang.

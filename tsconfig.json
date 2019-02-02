@@ -2,10 +2,14 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "lib": ["es2017", "es2018"],
+    "lib": [
+      "es2017",
+      "es2018"
+    ],
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
+    "allowJs": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

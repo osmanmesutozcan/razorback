@@ -80,7 +80,13 @@ export interface IConfigurationService {
   updateValue(key: string, value: any): Promise<void>;
   updateValue(key: string, value: any, overrides: IConfigurationOverrides): Promise<void>;
   updateValue(key: string, value: any, target: ConfigurationTarget): Promise<void>;
-  updateValue(key: string, value: any, overrides: IConfigurationOverrides, target: ConfigurationTarget, donotNotifyError?: boolean): Promise<void>;
+  updateValue(
+    key: string,
+    value: any,
+    overrides: IConfigurationOverrides,
+    target: ConfigurationTarget,
+    donotNotifyError?: boolean,
+  ): Promise<void>;
 
   reloadConfiguration(): Promise<void>;
   reloadConfiguration(folder: IWorkspaceFolder): Promise<void>;
@@ -122,7 +128,11 @@ export interface IConfigurationData {
   isComplete: boolean;
 }
 
-export function compare(from: IConfigurationModel, to: IConfigurationModel): { added: string[], removed: string[], updated: string[] } {
+export function compare(
+  from: IConfigurationModel,
+  to: IConfigurationModel,
+): { added: string[], removed: string[], updated: string[] } {
+
   const added = to.keys.filter(key => from.keys.indexOf(key) === -1);
   const removed = from.keys.filter(key => to.keys.indexOf(key) === -1);
   const updated: string[] = [];
@@ -140,41 +150,57 @@ export function compare(from: IConfigurationModel, to: IConfigurationModel): { a
 
 export function toOverrides(raw: any, conflictReporter: (message: string) => void): IOverrides[] {
   const overrides: IOverrides[] = [];
-  const configurationProperties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+  const configurationProperties = Registry
+    .as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+
   for (const key of Object.keys(raw)) {
     if (OVERRIDE_PROPERTY_PATTERN.test(key)) {
       const overrideRaw = {};
       for (const keyInOverrideRaw in raw[key]) {
-        if (configurationProperties[keyInOverrideRaw] && configurationProperties[keyInOverrideRaw].overridable) {
+        if (
+          configurationProperties[keyInOverrideRaw]
+          && configurationProperties[keyInOverrideRaw].overridable
+        ) {
           (overrideRaw as any)[keyInOverrideRaw] = raw[key][keyInOverrideRaw];
         }
       }
       overrides.push({
         identifiers: [overrideIdentifierFromKey(key).trim()],
-        contents: toValuesTree(overrideRaw, conflictReporter)
+        contents: toValuesTree(overrideRaw, conflictReporter),
       });
     }
   }
   return overrides;
 }
 
-export function toValuesTree(properties: { [qualifiedKey: string]: any }, conflictReporter: (message: string) => void): any {
+export function toValuesTree(
+  properties: { [qualifiedKey: string]: any },
+  conflictReporter: (message: string) => void,
+): any {
+
   const root = Object.create(null);
 
-  for (let key in properties) {
+  for (const key in properties) {
     addToValueTree(root, key, properties[key], conflictReporter);
   }
 
   return root;
 }
 
-export function addToValueTree(settingsTreeRoot: any, key: string, value: any, conflictReporter: (message: string) => void): void {
+export function addToValueTree(
+  settingsTreeRoot: any,
+  key: string,
+  value: any,
+  conflictReporter: (message: string) => void,
+): void {
+
   const segments = key.split('.');
   const last = segments.pop()!;
 
   let curr = settingsTreeRoot;
+  // tslint:disable-next-line:no-increment-decrement
   for (let i = 0; i < segments.length; i++) {
-    let s = segments[i];
+    const s = segments[i];
     let obj = curr[s];
     switch (typeof obj) {
       case 'undefined':
@@ -183,7 +209,8 @@ export function addToValueTree(settingsTreeRoot: any, key: string, value: any, c
       case 'object':
         break;
       default:
-        conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join('.')} is ${JSON.stringify(obj)}`);
+        conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1)
+            .join('.')} is ${JSON.stringify(obj)}`);
         return;
     }
     curr = obj;
@@ -221,11 +248,13 @@ function doRemoveFromValueTree(valueTree: any, segments: string[]): void {
 }
 
 /**
- * A helper function to get the configuration value with a specific settings path (e.g. config.some.setting)
+ * A helper function to get the configuration value
+ * with a specific settings path (e.g. config.some.setting)
  */
 export function getConfigurationValue<T>(config: any, settingPath: string, defaultValue?: T): T {
   function accessSetting(config: any, path: string[]): any {
     let current = config;
+    // tslint:disable-next-line:no-increment-decrement
     for (let i = 0; i < path.length; i++) {
       if (typeof current !== 'object' || current === null) {
         return undefined;
@@ -242,7 +271,7 @@ export function getConfigurationValue<T>(config: any, settingPath: string, defau
 }
 
 export function merge(base: any, add: any, overwrite: boolean): void {
-  Object.keys(add).forEach(key => {
+  Object.keys(add).forEach((key) => {
     if (key in base) {
       if (types.isObject(base[key]) && types.isObject(add[key])) {
         merge(base[key], add[key], overwrite);
@@ -256,17 +285,21 @@ export function merge(base: any, add: any, overwrite: boolean): void {
 }
 
 export function getConfigurationKeys(): string[] {
-  const properties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+  const properties = Registry
+    .as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
   return Object.keys(properties);
 }
 
 export function getDefaultValues(): any {
   const valueTreeRoot: any = Object.create(null);
-  const properties = Registry.as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
+  const properties = Registry
+    .as<IConfigurationRegistry>(Extensions.Configuration).getConfigurationProperties();
 
-  for (let key in properties) {
-    let value = properties[key].default;
-    addToValueTree(valueTreeRoot, key, value, message => console.error(`Conflict in default settings: ${message}`));
+  for (const key in properties) {
+    const value = properties[key].default;
+    addToValueTree(
+      valueTreeRoot, key, value,
+      message => console.error(`Conflict in default settings: ${message}`));
   }
 
   return valueTreeRoot;

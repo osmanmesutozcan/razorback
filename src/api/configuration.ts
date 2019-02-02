@@ -22,7 +22,7 @@ export class ExtHostConfiguration {
   getConfiguration(
     _section?: string,
     _resource?: URI,
-    _extensionId?: string,
+    extensionId?: string,
   ): rback.WorkspaceConfiguration {
 
     const result: rback.WorkspaceConfiguration = {

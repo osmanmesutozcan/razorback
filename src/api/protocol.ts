@@ -95,6 +95,8 @@ export const CoreBindings = {
   CoreLanguagesComponent: Symbol.for('razorback.core.languages'),
   CoreExtensionsComponent: Symbol.for('razorback.core.extensions'),
   CoreFileSystemWatcherComponent: Symbol.for('razorback.core.fsevents'),
+  CoreConfigurationComponent: Symbol.for('razorback.core.configuration'),
+  CoreExtensionDescriptionRegistry: Symbol.for('razorback.core.extensionregistry'),
 };
 
 export interface CoreCommandsShape extends IDisposable {

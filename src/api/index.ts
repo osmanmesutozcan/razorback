@@ -23,6 +23,7 @@ import { ExtHostLanguages } from './languages';
 import { ExtHostConfiguration } from './configuration';
 import { ExtHostExtensions } from './extensions';
 import { ExtHostFileSystemEvents } from './fsevents';
+import { ExtensionDescriptionRegistry } from '../core/extension/registry';
 
 export function createApiFactory(coreContext: CoreContext) {
   // Register extention host classes to core.
@@ -41,8 +42,7 @@ export function createApiFactory(coreContext: CoreContext) {
 
   return function createApi(
     extension: IExtensionDescription,
-    // TODO:
-    // extensionRegistry: ExtensionDescriptionRegistry,
+    extensionRegistry: ExtensionDescriptionRegistry,
     // configProvider: ExtHostConfigProvider
   ): typeof rback {
 
@@ -176,5 +176,8 @@ export function createApiFactory(coreContext: CoreContext) {
 }
 
 export interface ICreateApi {
-  (extension: IExtensionDescription): typeof rback;
+  (
+    extension: IExtensionDescription,
+    extensionregistry: ExtensionDescriptionRegistry,
+  ): typeof rback;
 }

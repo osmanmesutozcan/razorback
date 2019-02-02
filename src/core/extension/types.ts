@@ -49,6 +49,7 @@ export const nullExtensionDescription = Object.freeze(<IExtensionDescription>{
 export interface IExtensionDescription extends IExtensionManifest {
   // Generalized from 'ExtensionIdentifier' type.
   // Will keep a placeholder value for now.
+  readonly id: string;
   readonly identifier: any;
   readonly uuid?: string;
   readonly isBuiltin: boolean;

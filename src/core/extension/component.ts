@@ -13,13 +13,21 @@ import {
 } from './types';
 import { URI } from '../../base/uri';
 import { ICreateApi, createApiFactory } from '../../api';
+import { ExtensionDescriptionRegistry } from './registry';
+import { CoreBindings as CoreComponentBindings } from '../../api/protocol';
 
 const logger = createLogger('razorback#extension#component');
 
 export class ExtensionsComponent implements IComponent {
+  private readonly _extensionDescriptionRegistry: ExtensionDescriptionRegistry;
+
   constructor(
     @inject(CoreBindings.CORE_INSTANCE) private core: CoreContext,
-  ) { }
+  ) {
+
+    this._extensionDescriptionRegistry = core
+      .get(CoreComponentBindings.CoreExtensionDescriptionRegistry);
+  }
 
   classes = {
     [ExtensionInternalBindings.DATABASE]: ExtensionDatabase,
@@ -49,6 +57,13 @@ export class ExtensionsComponent implements IComponent {
       .get<ExtensionDatabase>(ExtensionInternalBindings.DATABASE);
 
     const extensions = database.list();
+
+    const extensionDescriptions = await Promise.all(
+      extensions.map(ext => database.getPackageJSON(ext)),
+    );
+    this._extensionDescriptionRegistry
+      ._initialize(extensionDescriptions);
+
     await Promise.all(
       extensions.map(ext => this.loadExtension(ext)),
     );
@@ -64,6 +79,7 @@ export class ExtensionsComponent implements IComponent {
     this.extensions.set(id, new Extension(
       this.createApi,
       await this._loadExtensionDescription(extension, packageJSON),
+      this._extensionDescriptionRegistry,
     ));
   }
 
@@ -96,6 +112,7 @@ export class ExtensionsComponent implements IComponent {
     );
 
     return {
+      id: <string>packageJSON.name,
       name: <string>packageJSON.name,
       version: <string>packageJSON.version,
       publisher: 'Community',
