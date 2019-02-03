@@ -7,8 +7,5 @@
  * - Workspace Folder --> .vscode equivalent
  */
 export class CoreConfigurationComponent {
-
-  async boot(): Promise<void> {
-
-  }
+  async boot(): Promise<void> {}
 }

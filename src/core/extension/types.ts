@@ -1,14 +1,14 @@
-import { URI } from '../../base/uri';
+import { URI } from "../../base/uri";
 
 export namespace ExtensionInternalBindings {
-  export const DATABASE = 'razorback.extension.database';
+  export const DATABASE = "razorback.extension.database";
 }
 
 export interface DatabaseSchema {
   extensions: IExtensionModel[];
 }
 
-export type ExtensionKind = 'ui' | 'workspace';
+export type ExtensionKind = "ui" | "workspace";
 
 /**
  * Single extension entry in database.
@@ -34,16 +34,16 @@ export interface IExtensionContext {
 }
 
 export const nullExtensionDescription = Object.freeze(<IExtensionDescription>{
-  id: 'nullExtensionDescription',
-  identifier: 'nullExtensionDescription',
+  id: "nullExtensionDescription",
+  identifier: "nullExtensionDescription",
   isUnderDevelopment: false,
-  name: 'Null Extension Description',
-  version: '0.0.0',
-  publisher: 'vscode',
+  name: "Null Extension Description",
+  version: "0.0.0",
+  publisher: "vscode",
   enableProposedApi: false,
-  engines: { vscode: '' },
-  extensionLocation: URI.parse('void:location'),
-  isBuiltin: false,
+  engines: { vscode: "" },
+  extensionLocation: URI.parse("void:location"),
+  isBuiltin: false
 });
 
 export interface IExtensionDescription extends IExtensionManifest {
@@ -58,8 +58,8 @@ export interface IExtensionDescription extends IExtensionManifest {
   enableProposedApi?: boolean;
 }
 
-export interface IExtension {
-  activate: (context: IExtensionContext) => Promise<boolean>;
+export interface IExtension<T> {
+  activate: (context: IExtensionContext) => Promise<T>;
   deactivate: () => Promise<boolean>;
 }
 
@@ -76,7 +76,7 @@ export interface IConfigurationProperty {
 }
 
 export interface IConfiguration {
-  properties: { [key: string]: IConfigurationProperty; };
+  properties: { [key: string]: IConfigurationProperty };
 }
 
 export interface IDebugger {
@@ -137,7 +137,7 @@ export interface IView {
 export interface IColor {
   id: string;
   description: string;
-  defaults: { light: string, dark: string, highContrast: string };
+  defaults: { light: string; dark: string; highContrast: string };
 }
 
 // Some of these contributions are not possible to
@@ -178,7 +178,7 @@ export interface IExtensionManifest {
   readonly extensionPack?: string[];
   readonly extensionKind?: ExtensionKind;
   readonly contributes?: IExtensionContributions;
-  readonly repository?: { url: string; };
-  readonly bugs?: { url: string; };
+  readonly repository?: { url: string };
+  readonly bugs?: { url: string };
   readonly enableProposedApi?: boolean;
 }

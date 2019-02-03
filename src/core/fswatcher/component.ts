@@ -1,18 +1,18 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as chokidar from 'chokidar';
-import { inject } from 'inversify';
-import { createLogger } from '../../logger';
-import { Emitter, Event } from '../../base/event';
-import { parseGitIgnore } from '../../base/fs';
-import { URI } from '../../base/uri';
-import { CoreBindings } from '../types';
-import { CoreContext } from '../core';
-import { CoreWorkspaceComponent } from '../workspace/component';
-import { CoreBindings as CoreProtocolBindings } from '../../api/protocol';
-import { FileSystemEvents } from './types';
+import * as fs from "fs";
+import * as path from "path";
+import * as chokidar from "chokidar";
+import { inject } from "inversify";
+import { createLogger } from "../../logger";
+import { Emitter, Event } from "../../base/event";
+import { parseGitIgnore } from "../../base/fs";
+import { URI } from "../../base/uri";
+import { CoreBindings } from "../types";
+import { CoreContext } from "../core";
+import { CoreWorkspaceComponent } from "../workspace/component";
+import { CoreBindings as CoreProtocolBindings } from "../../api/protocol";
+import { FileSystemEvents } from "./types";
 
-const logger = createLogger('razorback#fswatcher');
+const logger = createLogger("razorback#fswatcher");
 
 export class CoreFileSystemWatcherComponent {
   private readonly $_onFileEvent = new Emitter<FileSystemEvents>();
@@ -22,33 +22,32 @@ export class CoreFileSystemWatcherComponent {
 
   private readonly _watcher: chokidar.FSWatcher;
 
-  constructor(
-    @inject(CoreBindings.CORE_INSTANCE) coreContext: CoreContext,
-  ) {
-    this._coreWorkspaceComponent = coreContext
-      .get<CoreWorkspaceComponent>(CoreProtocolBindings.CoreWorkspaceComponent);
+  constructor(@inject(CoreBindings.CORE_INSTANCE) coreContext: CoreContext) {
+    this._coreWorkspaceComponent = coreContext.get<CoreWorkspaceComponent>(
+      CoreProtocolBindings.CoreWorkspaceComponent
+    );
 
     const directories = this._getRootdirectories();
     const ignored = this._getRootIgnores(directories);
     this._watcher = chokidar.watch(directories, { ignored });
 
-    this._watcher.on('all', (event, path) => {
+    this._watcher.on("all", (event, path) => {
       const fileEvent: FileSystemEvents = {
         created: [],
         changed: [],
-        deleted: [],
+        deleted: []
       };
 
       logger.trace(event, path);
 
       // File events
-      if (event === 'add') {
+      if (event === "add") {
         fileEvent.created.push(URI.file(path));
       }
-      if (event === 'change') {
+      if (event === "change") {
         fileEvent.changed.push(URI.file(path));
       }
-      if (event === 'unlink') {
+      if (event === "unlink") {
         fileEvent.deleted.push(URI.file(path));
       }
 
@@ -56,7 +55,7 @@ export class CoreFileSystemWatcherComponent {
     });
 
     // Sync workspace folder changes.
-    this._coreWorkspaceComponent.$onDidChangeWorkspaceFolders((event) => {
+    this._coreWorkspaceComponent.$onDidChangeWorkspaceFolders(event => {
       event.added.forEach(f => this._watcher.add(f.uri.fsPath));
       event.removed.forEach(f => this._watcher.unwatch(f.uri.fsPath));
     });
@@ -71,24 +70,25 @@ export class CoreFileSystemWatcherComponent {
 
     // TODO handle unsaved buffer.
     // for now whereever we start vim from.
-    return ['.'];
+    return ["."];
   }
 
   private _getRootIgnores(directories: string[]): string[] {
     const ignores = directories
-      .map(d => path.resolve(d, '.gitignore'))
+      .map(d => path.resolve(d, ".gitignore"))
       .filter(d => d !== undefined)
       .reduce(
         (acc: string[], f: string) => {
           if (fs.existsSync(f)) {
-            return acc.concat(parseGitIgnore((f)).patterns);
+            return acc.concat(parseGitIgnore(f).patterns);
           }
 
           return acc;
         },
-        <string[]>[]);
+        <string[]>[]
+      );
 
-    ignores.push('.git');
+    ignores.push(".git");
 
     return ignores;
   }

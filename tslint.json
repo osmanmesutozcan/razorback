@@ -1,6 +1,8 @@
 {
-  "extends": "tslint-config-airbnb",
+  "extends": ["tslint-config-airbnb", "tslint-config-prettier"],
   "rules": {
+    "no-parameter-reassignment": false,
+    "no-increment-decrement": false,
     "variable-name": false,
     "function-name": false
   }

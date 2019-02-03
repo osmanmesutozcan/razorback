@@ -1,13 +1,13 @@
-import * as _ from 'lodash';
-import { Container } from 'inversify';
-import { Event, Emitter } from 'vscode-languageserver-protocol';
+import * as _ from "lodash";
+import { Container } from "inversify";
+import { Event, Emitter } from "vscode-languageserver-protocol";
 
-import { LinkedList } from '../../base/linkedList';
-import { IDisposable, toDisposable } from '../../base/lifecycle';
-import { TypeConstraint, validateConstraints } from '../../base/types';
-import { createDecorator } from '../instantiation';
-import { IComponent } from '../component';
-import { ICommandHandlerDescription } from './types';
+import { LinkedList } from "../../base/linkedList";
+import { IDisposable, toDisposable } from "../../base/lifecycle";
+import { TypeConstraint, validateConstraints } from "../../base/types";
+import { createDecorator } from "../instantiation";
+import { IComponent } from "../component";
+import { ICommandHandlerDescription } from "./types";
 
 export interface ICommandHandler {
   (accessor: Container, ...args: any[]): void;
@@ -38,26 +38,37 @@ export interface ICommandEvent {
 
 export interface ICommandService {
   _serviceBrand: any;
+
   onWillExecuteCommand: Event<ICommandEvent>;
-  executeCommand<T = any>(commandId: string, ...args: any[]): Promise<T | undefined>;
+
+  executeCommand<T = any>(
+    commandId: string,
+    ...args: any[]
+  ): Promise<T | undefined>;
 }
 
-export const ICommandService = createDecorator<ICommandService>('commandService');
+export const ICommandService = createDecorator<ICommandService>(
+  "commandService"
+);
 
 class CommandsRegistryImpl implements IComponent, ICommandsRegistry {
   private readonly _commands = new Map<string, LinkedList<ICommand>>();
 
   private readonly _onDidRegisterCommand = new Emitter<string>();
-  readonly onDidRegisterCommand: Event<string> = this._onDidRegisterCommand.event;
+  readonly onDidRegisterCommand: Event<string> = this._onDidRegisterCommand
+    .event;
 
-  registerCommand(idOrCommand: string | ICommand, handler?: ICommandHandler): IDisposable {
+  registerCommand(
+    idOrCommand: string | ICommand,
+    handler?: ICommandHandler
+  ): IDisposable {
     if (!idOrCommand) {
-      throw new Error('invalid command');
+      throw new Error("invalid command");
     }
 
     if (_.isString(idOrCommand)) {
       if (!handler) {
-        throw new Error('invalid command');
+        throw new Error("invalid command");
       }
       return this.registerCommand({ handler, id: idOrCommand });
     }
@@ -69,7 +80,7 @@ class CommandsRegistryImpl implements IComponent, ICommandsRegistry {
       });
 
       const actualHandler = idOrCommand.handler;
-      idOrCommand.handler = function (accessor, ...args: any[]) {
+      idOrCommand.handler = function(accessor, ...args: any[]) {
         validateConstraints(args, constraints);
         return actualHandler(accessor, ...args);
       };
@@ -99,11 +110,10 @@ class CommandsRegistryImpl implements IComponent, ICommandsRegistry {
   }
 
   registerCommandAlias(oldId: string, newId: string): IDisposable {
-    return this.registerCommand(
-      oldId,
-      (accessor: Container, ...args) => accessor
+    return this.registerCommand(oldId, (accessor: Container, ...args) =>
+      accessor
         .get<ICommandService>(ICommandService)
-        .executeCommand(newId, ...args),
+        .executeCommand(newId, ...args)
     );
   }
 

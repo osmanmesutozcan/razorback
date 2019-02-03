@@ -1,20 +1,17 @@
-import * as rback from 'razorback';
-import { createLogger } from '../../logger';
-import { ICreateApi } from '../../api';
-import { createSandbox } from '../sandbox';
-import { ExtensionDescriptionRegistry } from './registry';
-import {
-  IExtension,
-  IExtensionDescription,
-} from './types';
+import * as rback from "razorback";
+import { createLogger } from "../../logger";
+import { ICreateApi } from "../../api";
+import { createSandbox } from "../sandbox";
+import { ExtensionDescriptionRegistry } from "./registry";
+import { IExtension, IExtensionDescription } from "./types";
 
-const logger = createLogger('razorback#extension#extension');
+const logger = createLogger("razorback#extension#extension");
 
 export class Extension<T> implements rback.Extension<T> {
   /*
    * Extension module in sandbox.
    */
-  private _extension: IExtension;
+  private _extension: IExtension<T>;
 
   /*
    * Contains all extension info.
@@ -46,7 +43,7 @@ export class Extension<T> implements rback.Extension<T> {
    * TODO: Actually construct this.
    */
   private _context = {
-    subscriptions: [],
+    subscriptions: []
   };
 
   /*
@@ -72,21 +69,14 @@ export class Extension<T> implements rback.Extension<T> {
     createApi: ICreateApi,
     extension: IExtensionDescription,
     extensionRegistry: ExtensionDescriptionRegistry,
-    packageJSON: any,
+    packageJSON: any
   ) {
-    const sandbox = createSandbox(
-      createApi,
-      extension,
-      extensionRegistry,
-    );
+    const sandbox = createSandbox(createApi, extension, extensionRegistry);
 
     this._description = extension;
     this._packageJSON = packageJSON;
-
-    this._extension =
-      sandbox.require(extension.extensionLocation.path);
-
-    logger.debug('extension imported successfully');
+    this._extension = sandbox.require(extension.extensionLocation.path);
+    logger.debug("extension imported successfully");
   }
 
   /**
@@ -94,9 +84,7 @@ export class Extension<T> implements rback.Extension<T> {
    */
   async activate(): Promise<T> {
     this._isActive = true;
-    this._extension.activate.apply(global, [this._context]);
-    // TODO: Return extension public api.
-    return {} as T;
+    return this._extension.activate.apply(global, [this._context]);
   }
 
   /**

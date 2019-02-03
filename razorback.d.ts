@@ -1399,7 +1399,7 @@ declare module 'razorback' {
     /**
      * An event that is emitted when the [configuration](#WorkspaceConfiguration) changed.
      */
-		// TODO: WIP
+    // TODO: WIP
     export const onDidChangeConfiguration: Event<ConfigurationChangeEvent>;
 
     /**
@@ -1411,7 +1411,7 @@ declare module 'razorback' {
      * @param provider A task provider.
      * @return A [disposable](#Disposable) that unregisters this provider when being disposed.
      */
-		// TODO:
+    // TODO:
     // export function registerTaskProvider(type: string, provider: TaskProvider): Disposable;
     export function registerTaskProvider(type: string, provider: any): Disposable;
 

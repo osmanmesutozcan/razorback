@@ -1,18 +1,13 @@
-import * as rback from 'razorback';
-import { URI } from '../../base/uri';
-import { parse, IRelativePattern } from '../../base/glob';
-// import { Disposable } from '../../base/lifecycle';
-import { Emitter, Event } from '../../base/event';
-import { FileSystemEvents } from './types';
+import * as rback from "razorback";
+import { URI } from "../../base/uri";
+import { parse, IRelativePattern } from "../../base/glob";
+import { Emitter, Event } from "../../base/event";
+import { FileSystemEvents } from "./types";
 
-// TODO: have message service to show these erorrs to user, so they can
-// fix stuff if they need to.
 export class FileSystemWatcher implements rback.FileSystemWatcher {
-
-  private _onDidCreate = new Emitter<rback.Uri>();
-  private _onDidChange = new Emitter<rback.Uri>();
-  private _onDidDelete = new Emitter<rback.Uri>();
-  // private _disposable: Disposable;
+  private _onDidCreate = new Emitter<URI>();
+  private _onDidChange = new Emitter<URI>();
+  private _onDidDelete = new Emitter<URI>();
   private _config = 0;
 
   get ignoreCreateEvents(): boolean {
@@ -32,9 +27,8 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
     globPattern: string | IRelativePattern,
     ignoreCreateEvents?: boolean,
     ignoreChangeEvents?: boolean,
-    ignoreDeleteEvents?: boolean,
+    ignoreDeleteEvents?: boolean
   ) {
-
     if (ignoreCreateEvents) {
       this._config += 0b001;
     }
@@ -47,9 +41,9 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
 
     const parsedPattern = parse(globPattern);
 
-    dispatcher((events) => {
+    dispatcher(events => {
       if (!ignoreCreateEvents) {
-        events.created.forEach((created) => {
+        events.created.forEach(created => {
           const uri = URI.revive(created);
           if (parsedPattern(uri.fsPath)) {
             this._onDidCreate.fire(uri);
@@ -57,7 +51,7 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
         });
       }
       if (!ignoreChangeEvents) {
-        events.changed.forEach((changed) => {
+        events.changed.forEach(changed => {
           const uri = URI.revive(changed);
           if (parsedPattern(uri.fsPath)) {
             this._onDidChange.fire(uri);
@@ -65,7 +59,7 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
         });
       }
       if (!ignoreDeleteEvents) {
-        events.deleted.forEach((deleted) => {
+        events.deleted.forEach(deleted => {
           const uri = URI.revive(deleted);
           if (parsedPattern(uri.fsPath)) {
             this._onDidDelete.fire(uri);
@@ -74,7 +68,7 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
       }
     });
 
-    // TODO
+    // TODO:
     // this._disposable = Disposable.from(
     //   this._onDidCreate,
     //   this._onDidChange,
@@ -86,15 +80,15 @@ export class FileSystemWatcher implements rback.FileSystemWatcher {
     // this._disposable.dispose();
   }
 
-  get onDidCreate(): Event<rback.Uri> {
+  get onDidCreate(): Event<URI> {
     return this._onDidCreate.event;
   }
 
-  get onDidChange(): Event<rback.Uri> {
+  get onDidChange(): Event<URI> {
     return this._onDidChange.event;
   }
 
-  get onDidDelete(): Event<rback.Uri> {
+  get onDidDelete(): Event<URI> {
     return this._onDidDelete.event;
   }
 }
