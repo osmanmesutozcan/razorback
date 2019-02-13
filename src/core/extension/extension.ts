@@ -3,7 +3,8 @@ import { createLogger } from "../../logger";
 import { ICreateApi } from "../../api";
 import { createSandbox } from "../sandbox";
 import { ExtensionDescriptionRegistry } from "./registry";
-import { IExtension, IExtensionDescription } from "./types";
+import { IExtensionDescription } from "./types";
+import { IActivatedExtension, IExtensionContext } from "./activator";
 
 const logger = createLogger("razorback#extension#extension");
 
@@ -11,7 +12,7 @@ export class Extension<T> implements rback.Extension<T> {
   /*
    * Extension module in sandbox.
    */
-  private _extension: IExtension<T>;
+  private _extension: IActivatedExtension<T>;
 
   /*
    * Contains all extension info.
@@ -42,9 +43,7 @@ export class Extension<T> implements rback.Extension<T> {
    * Extension context
    * TODO: Actually construct this.
    */
-  private _context = {
-    subscriptions: []
-  };
+  private _context: IExtensionContext = {};
 
   /*
    * Is extension active.

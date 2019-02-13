@@ -29,10 +29,6 @@ export interface IExtensionDefinition extends IExtensionModel {
   main: string;
 }
 
-export interface IExtensionContext {
-  // stuff
-}
-
 export const nullExtensionDescription = Object.freeze(<IExtensionDescription>{
   id: "nullExtensionDescription",
   identifier: "nullExtensionDescription",
@@ -56,11 +52,6 @@ export interface IExtensionDescription extends IExtensionManifest {
   readonly isUnderDevelopment: boolean;
   readonly extensionLocation: URI;
   enableProposedApi?: boolean;
-}
-
-export interface IExtension<T> {
-  activate: (context: IExtensionContext) => Promise<T>;
-  deactivate: () => Promise<boolean>;
 }
 
 export interface ICommand {

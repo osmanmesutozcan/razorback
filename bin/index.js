@@ -1,22 +1,24 @@
 #!/usr/bin/env node
 
-const { main } = require('../dist/main');
-const { createLogger } = require('../dist/logger');
-const logger = createLogger('razorback#bin');
+const { main } = require("../dist/main");
+const { createLogger } = require("../dist/logger");
+const logger = createLogger("razorback#bin");
 
 const options = {
   reader: process.stdin,
-  writer: process.stdout,
+  writer: process.stdout
 };
 
-main(options).catch((error) => {
-  logger.error('Error in application', error.message, error.stack);
-})
+Error.stackTraceLimit = 100;
 
-process.on('uncaughtException', (error) => {
-  logger.error('UncaughtException', error.message, error.stack);
+main(options).catch(error => {
+  logger.error("Error in application", error.message, error.stack);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('UnhandledRejection', promise, reason);
+process.on("uncaughtException", error => {
+  logger.error("UncaughtException", error.message, error.stack);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("UnhandledRejection", promise, reason);
 });
